@@ -1,0 +1,452 @@
+{
+  "http_requests:https://apiv2.vestiairecollective.com/breadcrumbs/": {
+    "body": {
+      "data": [
+        {
+          "url": 7,
+          "localizedName": 7
+        },
+        {
+          "url": {
+            "original": "<class 'str'> :: http://vestiairecollective.com/",
+            "path": "<class 'str'> :: /",
+            "url": "<class 'str'> :: http://vestiairecollective.com/"
+          },
+          "localizedName": "<class 'str'> :: Accueil"
+        }
+      ],
+      "meta": {
+        "limit": "<class 'int'> :: 60",
+        "offset": "<class 'int'> :: 0",
+        "count": "<class 'int'> :: 0"
+      }
+    }
+  },
+  "http_requests:https://api-static-s3.vestiairecollective.com/1/fr-FR/I18N.json": {
+    "body": {
+      "country": {
+        "title": "<class 'str'> :: Pays",
+        "shortLists": [
+          {
+            "id": 15,
+            "name": 15,
+            "isoCode": 15,
+            "idRegion": 15
+          },
+          {
+            "id": "<class 'str'> :: 81",
+            "name": "<class 'str'> :: Allemagne",
+            "isoCode": "<class 'str'> :: DE",
+            "idRegion": "<class 'str'> :: 10"
+          }
+        ],
+        "fullList": [
+          {
+            "id": 244,
+            "name": 244,
+            "isoCode": 244,
+            "idRegion": 244
+          },
+          {
+            "id": "<class 'str'> :: 1",
+            "name": "<class 'str'> :: Afghanistan",
+            "isoCode": "<class 'str'> :: AF",
+            "idRegion": "<class 'str'> :: 5"
+          }
+        ]
+      },
+      "language": {
+        "title": "<class 'str'> :: Langue",
+        "list": [
+          {
+            "isoCode": 6,
+            "name": 6
+          },
+          {
+            "isoCode": "<class 'str'> :: de-DE",
+            "name": "<class 'str'> :: Allemand"
+          }
+        ]
+      },
+      "currency": {
+        "title": "<class 'str'> :: Devise",
+        "list": [
+          {
+            "id": 11,
+            "symbol": 11,
+            "isoCode": 11,
+            "name": 11
+          },
+          {
+            "id": "<class 'str'> :: 38",
+            "symbol": "<class 'str'> :: \u20ac",
+            "isoCode": "<class 'str'> :: EUR",
+            "name": "<class 'str'> :: Euros, Europe zone euro"
+          }
+        ]
+      }
+    }
+  },
+  "http_requests:https://api-static-s3.vestiairecollective.com/1/fr-FR/header.json": {
+    "body": [
+      {
+        "mnemonic": 11,
+        "content": 11,
+        "id": 11,
+        "localizedName": 11,
+        "url": 11
+      },
+      {
+        "mnemonic": "<class 'str'> :: new-in",
+        "content": [
+          {
+            "content": 3,
+            "id": 3,
+            "localizedName": 3,
+            "url": 3
+          },
+          {
+            "content": [
+              {
+                "id": 7,
+                "localizedName": 7,
+                "url": 7
+              },
+              {
+                "id": "<class 'int'> :: 1000",
+                "localizedName": "<class 'str'> :: Voir tout",
+                "url": {
+                  "original": "<class 'str'> :: None",
+                  "seo": "<class 'str'> :: /nouveautes/",
+                  "mobile": "<class 'str'> :: /nouveautes/",
+                  "anchor": [
+                    {
+                      "close": 1
+                    },
+                    {
+                      "close": "<class 'str'> :: all"
+                    }
+                  ]
+                }
+              }
+            ],
+            "id": "<class 'int'> :: 100",
+            "localizedName": "<class 'str'> :: Nouveaut\u00e9s",
+            "url": {
+              "original": "<class 'str'> :: None",
+              "seo": "<class 'str'> :: /nouveautes/",
+              "mobile": "<class 'str'> :: /nouveautes/",
+              "anchor": [
+                {
+                  "close": 1
+                },
+                {
+                  "close": "<class 'str'> :: all"
+                }
+              ]
+            }
+          }
+        ],
+        "id": "<class 'int'> :: 10",
+        "localizedName": "<class 'str'> :: Nouveaut\u00e9s",
+        "url": {
+          "original": "<class 'str'> :: None",
+          "seo": "<class 'str'> :: /nouveautes/",
+          "mobile": "<class 'str'> :: /nouveautes/",
+          "anchor": [
+            {
+              "open": 1
+            },
+            {
+              "open": "<class 'str'> :: all"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "http_requests:https://api-static-s3.vestiairecollective.com/1/fr-FR/footer.json": {
+    "body": {
+      "navigation": [
+        {
+          "id": 5,
+          "mnemonic": 5,
+          "title": 5,
+          "content": 5
+        },
+        {
+          "id": "<class 'int'> :: 1",
+          "mnemonic": "<class 'str'> :: services",
+          "title": "<class 'str'> :: Nos Services",
+          "content": [
+            {
+              "id": 4,
+              "mnemonic": 4,
+              "name": 4,
+              "link": 4,
+              "target": 4,
+              "obfuscate": 4
+            },
+            {
+              "id": "<class 'int'> :: 1",
+              "mnemonic": "<class 'str'> :: concept",
+              "name": "<class 'str'> :: Notre concept",
+              "link": "<class 'str'> :: /concept-depot-vente-luxe/",
+              "target": "<class 'str'> :: __self",
+              "obfuscate": "<class 'bool'> :: True"
+            }
+          ]
+        }
+      ],
+      "legals": [
+        {
+          "id": 6,
+          "mnemonic": 6,
+          "name": 6,
+          "link": 6,
+          "target": 6,
+          "obfuscate": 6,
+          "display": 1
+        },
+        {
+          "id": "<class 'int'> :: 1",
+          "mnemonic": "<class 'str'> :: legal-mentions",
+          "name": "<class 'str'> :: Mentions l\u00e9gales",
+          "link": "<class 'str'> :: /mentions-legales.shtml",
+          "target": "<class 'str'> :: __self",
+          "obfuscate": "<class 'bool'> :: False"
+        }
+      ],
+      "socials": [
+        {
+          "id": 4,
+          "mnemonic": 4,
+          "name": 4,
+          "lowercaseName": 4,
+          "link": 4,
+          "target": 4,
+          "obfuscate": 4
+        },
+        {
+          "id": "<class 'str'> :: 1",
+          "mnemonic": "<class 'str'> :: twitter",
+          "name": "<class 'str'> :: Twitter",
+          "lowercaseName": "<class 'str'> :: twitter",
+          "link": "<class 'str'> :: https://twitter.com/vestiaireco_fr",
+          "target": "<class 'str'> :: __self",
+          "obfuscate": "<class 'bool'> :: False"
+        }
+      ],
+      "reinsurance": {
+        "cart": [
+          {
+            "id": 3,
+            "mnemonic": 3,
+            "name": 3,
+            "link": 2,
+            "target": 2,
+            "obfuscate": 2
+          },
+          {
+            "id": "<class 'int'> :: 1",
+            "mnemonic": "<class 'str'> :: help-support",
+            "name": "<class 'str'> :: Centre d'aide",
+            "link": "<class 'str'> :: https://faq.vestiairecollective.com/hc/fr",
+            "target": "<class 'str'> :: __self",
+            "obfuscate": "<class 'bool'> :: False"
+          }
+        ]
+      },
+      "domainsLinks": [
+        {
+          "id": 6,
+          "mnemonic": 6,
+          "name": 6,
+          "link": 6,
+          "target": 6,
+          "obfuscate": 6
+        },
+        {
+          "id": "<class 'int'> :: 1",
+          "mnemonic": "<class 'str'> :: fr",
+          "name": "<class 'str'> :: France",
+          "link": "<class 'str'> :: https://fr.vestiairecollective.com/",
+          "target": "<class 'str'> :: __self",
+          "obfuscate": "<class 'bool'> :: False"
+        }
+      ]
+    }
+  },
+  "http_requests:https://api-static-s3.vestiairecollective.com/1/fr-FR/sizeGuide.json": {
+    "body": {
+      "1": {
+        "label": "<class 'str'> :: women",
+        "categories": [
+          {
+            "sizeType": 6,
+            "label": 6,
+            "content": 6
+          },
+          {
+            "sizeType": "<class 'str'> :: 1",
+            "label": "<class 'str'> :: default",
+            "content": {
+              "idCategory": [
+                {
+                  "<class 'int'>": 11
+                },
+                "<class 'int'> :: 15"
+              ],
+              "title": "<class 'str'> :: Taille",
+              "guide": [
+                {
+                  "FR": 10,
+                  "UK": 10,
+                  "US": 10,
+                  "IT": 10,
+                  "International": 10,
+                  "0-5": 10
+                },
+                {
+                  "FR": "<class 'str'> :: 32",
+                  "UK": "<class 'str'> :: 4",
+                  "US": "<class 'str'> :: 1",
+                  "IT": "<class 'str'> :: 36",
+                  "International": "<class 'str'> :: XXS",
+                  "0-5": "<class 'str'> :: 000"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "2": {
+        "label": "<class 'str'> :: men",
+        "categories": [
+          {
+            "sizeType": 11,
+            "label": 11,
+            "content": 11
+          },
+          {
+            "sizeType": "<class 'str'> :: 10",
+            "label": "<class 'str'> :: default",
+            "content": {
+              "idCategory": [
+                {
+                  "<class 'int'>": 1
+                },
+                "<class 'int'> :: 12"
+              ],
+              "title": "<class 'str'> :: Taille Homme",
+              "guide": [
+                {
+                  "International": 7,
+                  "FR": 7,
+                  "IT": 7,
+                  "UK-US": 7,
+                  "0-6": 7
+                },
+                {
+                  "International": "<class 'str'> :: XS",
+                  "FR": "<class 'str'> :: 44",
+                  "IT": "<class 'str'> :: 44",
+                  "UK-US": "<class 'str'> :: 34",
+                  "0-6": "<class 'str'> :: 0"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "3": {
+        "label": "<class 'str'> :: children",
+        "categories": [
+          {
+            "sizeType": 2,
+            "label": 2,
+            "content": 2
+          },
+          {
+            "sizeType": "<class 'str'> :: 11",
+            "label": "<class 'str'> :: default",
+            "content": {
+              "idCategory": [
+                {
+                  "<class 'int'>": 14
+                },
+                "<class 'int'> :: 70"
+              ],
+              "title": "<class 'str'> :: Taille enfant",
+              "guide": [
+                {
+                  "FR": 18,
+                  "UK": 18
+                },
+                {
+                  "FR": "<class 'str'> :: 1 mois - jusqu'\u00e0 55cm",
+                  "UK": "<class 'str'> :: 1 mois - jusqu'\u00e0 22"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  "http_requests:https://apiv2.vestiairecollective.com/shipping-plan/eligibility": {
+    "body": {
+      "data": {
+        "id": "<class 'str'> :: ",
+        "type": "<class 'str'> :: shippingPlan",
+        "shippingPlan": [
+          {
+            "directShipping": 1
+          },
+          {
+            "directShipping": "<class 'bool'> :: True"
+          }
+        ]
+      },
+      "meta": {
+        "limit": "<class 'int'> :: 60",
+        "offset": "<class 'int'> :: 0",
+        "count": "<class 'int'> :: 0"
+      }
+    }
+  },
+  "http_requests:https://apiv2.vestiairecollective.com/contents/payment-methods": {
+    "body": {
+      "data": [
+        {
+          "name": 8,
+          "mnemonic": 8
+        },
+        {
+          "name": "<class 'str'> :: Vestiaire Collective Wallet",
+          "mnemonic": "<class 'str'> :: wallet"
+        }
+      ],
+      "meta": {
+        "limit": "<class 'int'> :: 60",
+        "offset": "<class 'int'> :: 0",
+        "count": "<class 'int'> :: 0"
+      }
+    }
+  },
+  "http_requests:https://apiv2.vestiairecollective.com/contents/customer-care": {
+    "body": {
+      "data": {
+        "phone": "<class 'str'> :: 09 70 25 37 37",
+        "schedule": "<class 'str'> :: du lundi au samedi de 8h \u00e0 23h \r\nLe dimanche de 10h \u00e0 13h et de 14h \u00e0 17h",
+        "phonePremium": "<class 'str'> :: 01 76 49 27 12",
+        "schedulePremium": "<class 'str'> :: Du lundi au samedi de 8h \u00e0 23h \r\nLe dimanche de 10h \u00e0 13h et de 14h \u00e0 17h\r\n"
+      },
+      "meta": {
+        "limit": "<class 'int'> :: 60",
+        "offset": "<class 'int'> :: 0",
+        "count": "<class 'int'> :: 0"
+      }
+    }
+  }
+}

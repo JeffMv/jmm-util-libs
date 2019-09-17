@@ -1,0 +1,741 @@
+
+#------------------------------------------------------------------------------
+#
+# Copyright (c) 2018, Jeffrey Mvutu Mabilama
+#
+#------------------------------------------------------------------------------
+""" An example of embedding a maplotlib plot inside an Enaml application.
+
+<< autodoc-me >>
+"""
+
+# Enamlx extensions
+from enamlx.widgets.table_view import (
+    TableView, TableViewRow, TableViewItem
+)
+
+# Enaml
+from enaml.core.api import (Looper, Conditional)
+from enaml.layout.api import vbox, hbox, spacer, align, grid
+# from enaml.widgets.menu import Menu
+from enaml.widgets.api import (
+    Window, Container, MPLCanvas, CheckBox, ComboBox,
+    Label, Field, Form, DateSelector, GroupBox,
+    PushButton, FileDialogEx,
+    HGroup, RadioButton, FlowArea, Menu,
+    # Splitter
+)
+
+## http://blink1073.github.io/enaml/docs/api_ref/widgets/file_dialog.html
+#from enaml.widgets.file_dialog import FileDialog 
+
+# from enaml.widgets import api as widgetsBook
+# import enaml.widgets.api
+from enaml.stdlib.fields import (
+    IntField
+)
+
+
+#################
+
+import StatelessOps as sops
+import jmm
+
+import pickle, os
+
+from matplotlib.figure import Figure
+
+fig1 = Figure()
+ax1 = fig1.add_subplot(111)
+ax1.plot([1, 2, 3])
+
+fig2 = Figure()
+ax2 = fig2.add_subplot(111)
+ax2.plot([5, 2, 8, 1])
+
+figures = {
+    'one': fig1,
+    'two': fig2,
+}
+
+# def gen_constraints_viewX(top_box, btm_box, btm_vis):
+    # if not btm_vis:
+    #     return [vbox(top_box)]
+    # top_form = top_box.form
+    # btm_form = btm_box.form
+    # return [vbox(top_box, btm_box), align('midline', top_form, btm_form)]
+
+# def gen_constraints_prefsView(box1, box2):
+#     return [vbox(box1, box2)]
+
+enamldef ComputationLauncherMainBoard(Window): window:
+    #
+    attr delegate
+    attr prefsModel
+    attr preferencesWindow = None
+    attr dataModel = None
+    
+    title = "Choix des mesures"
+    Container: # The left panel
+        GroupBox:
+            title = "Détails de la mesure"
+            GroupBox: leftPanelGroup:
+                title = "Afficher une fenêtre pour ..."
+                padding = 6
+                constraints = [
+                    hbox(symSetBtn1, symSetBtn2, symSetBtn3),
+                    symSetBtn1.width == symSetBtn2.width,
+                    symSetBtn1.width == symSetBtn3.width
+                    ]
+                RadioButton: symSetBtn1:
+                    text = "Numéros"
+                    checked << prefsModel.selectedCPSymbolsSetChoiceIndex == 0
+                    clicked :: prefsModel.selectedCPSymbolsSetChoiceIndex = 0
+                RadioButton: symSetBtn2:
+                    text = "Etoiles"
+                    checked << prefsModel.selectedCPSymbolsSetChoiceIndex == 1
+                    clicked :: prefsModel.selectedCPSymbolsSetChoiceIndex = 1
+                RadioButton: symSetBtn3:
+                    text = "Les deux"
+                    checked << prefsModel.selectedCPSymbolsSetChoiceIndex == 2
+                    clicked :: prefsModel.selectedCPSymbolsSetChoiceIndex = 2
+            #
+            Form:
+                padding = 6
+                Label:
+                    text = "Type d'affichage"
+                ComboBox:
+                    index := prefsModel.selectedCPVisualizationTypeIndex
+                    items = ["Graphique", "Textuel"] # "autre..."
+                #
+                Label:
+                    text = "Type de données"
+                ComboBox:
+                    index := prefsModel.selectedCPOutputDataTypeIndex
+                    items = ["Statistique simple", "Statistique de suivi", "Tirages"]
+                #
+                Label:
+                    text = "Calcul à effectuer"
+                ComboBox:
+                    index := prefsModel.selectedCPMeasureIndex
+                    items = ['Effectif', 'Parité', 'Ecart', 'Répétitions [nb à préciser]', 'N-uples [taille à spécifier]',
+                        'Somme des numéros', 'Somme chiffre des unités', 'Data - Taux de parité'
+                        ]
+        Form:
+            padding = 0
+            constraints << [drcLabel.width == drcBtn.width]
+            Label: drcLabel:
+                text << "Nombre de tirages: " + (str("XXXXX") if dataModel is None else str(dataModel.rowsCount()) )
+            PushButton: drcBtn:
+                text = "Charger les tirages"
+                clicked ::
+                    print("  Demande de chargement des tirages")
+                    delegate.loadDrawsData(window, prefsModel, prefsModel.gameId)
+                    pass
+        
+        Container:
+            padding = 0
+            constraints = [hbox(mainBtn1, mainBtn2), mainBtn1.width==mainBtn2.width]
+            PushButton: mainBtn1:
+                text = "Paramètres"
+                clicked ::
+                    if (window.preferencesWindow is None) or (not window.preferencesWindow.visible):
+                        window.preferencesWindow = Preferences(prefsModel=delegate.getPreferencesModel(), customRule=delegate.getCustomRule())
+                    window.preferencesWindow.show()
+            
+            PushButton: mainBtn2:
+                enabled = False
+                text = "Afficher le résultat"
+                clicked ::
+                    pass
+        
+        Container:
+            padding = 0
+
+            GroupBox:
+                title = "Statistiques"
+                PushButton:
+                    text = "Restaurer les fenêtres"
+                    clicked ::
+                        w = os.walk(prefsModel.dataPersistenceDir)
+                        tmpfilepaths = next(w)[-1]
+                        for fp in tmpfilepaths:
+                            with open(os.path.join(prefsModel.dataPersistenceDir,fp), "rb") as fh:
+                                try:
+                                    tmp = pickle.load(fh)
+                                    tmpDataModel = tmp['model']
+                                    tmpPath = tmp['path']
+                                    DataTableTBV(model=tmpDataModel, serializationPath=tmpPath, prefsModel=prefsModel).show() # the app preferences instance (prefsModel) must be shared by the whole application
+                                    # print("Voici le resultat: tmp: \n%s" % tmp)
+                                    # print()
+                                except Exception as err:
+                                    # print("----------\n   could not reload shit because of error : %s", repr(err) )
+                                    pass
+                        
+                        # print("test stuffs clicked")
+                        pass
+            
+                PushButton:
+                    enabled << dataModel is not None
+                    text = "Afficher les données"
+                    clicked ::
+                        DataTableTBV(model=dataModel, prefsModel=prefsModel).show()
+                        # print("test stuffs clicked")
+                        pass
+
+            GroupBox:
+                title = "Utilitaire / Générateur"
+                PushButton:
+                    text = "Générateur de tirage"
+                    clicked ::
+                        RandomDrawGenerator(prefsModel=prefsModel, customRule=delegate.getCustomRule(), delegate=delegate).show()
+                        # print("test stuffs clicked")
+                        pass
+    
+    # GroupBox: # The right panel
+    #     title = "Paramètres"
+        
+
+
+enamldef Preferences(Window): window:
+    attr prefsModel
+    attr customRule
+    attr probaModel = None
+    
+    Container:
+        # constraints << gen_constraints_prefsView(fileSelectionGroup, rulesGroup)
+        GroupBox: fileSelectionGroup:
+            title = "Source des données"
+            padding = 0
+            
+            Container:
+                padding = 0
+                Form:
+                    Label:
+                        text = "Chemin du fichier"
+                    Container:
+                        constraints = [hbox(filepathField, selectFileBtn)]
+                        Field: filepathField:
+                            text := prefsModel.drawsfile #["drawsfile"]
+                            text ::
+                                print("Chemin:", text)
+                                pass
+                        
+                        PushButton: selectFileBtn:
+                            text = "Choisir"
+                            clicked ::
+                                path = FileDialogEx.get_open_file_name(window)
+                                if path:
+                                    prefsModel.drawsfile = path
+        
+        GroupBox: rulesGroup:
+            title = "Règles du jeu"
+            # padding = 0
+            
+            ComboBox: combo_box:
+                index := prefsModel.selectedRuleIndex  # default value
+                index ::
+                    # print("Also do this")
+                    # if ruleNames[index] is not None:
+                        print(ruleNames[index])
+                        customRule.gameId = ruleNames[index]
+                        prefsModel.gameId = ruleNames[index]
+                    
+                items = ['Euromillions (formule 12 étoiles)', 'Swiss Loto (formule janvier 2013)', 'Swiss Loto (première formule)', 'Swiss Loto Express (formule avant 2017)', "Formule personnalisée..."]
+                attr ruleNames = ['eum', 'slo', 'slo', 'sloex', '']
+                
+            GroupBox:
+                title = "Détails de la règle"
+                padding = 0
+                visible << (prefsModel.selectedRuleIndex == (len(combo_box.items)-1) )
+                share_layout = True # Imporant! without sharing the layout somewhere, UI becomes buggy
+                
+                Form:
+                    padding = 6
+                    #
+                    Label:
+                        text = "ID du jeu"
+                    HGroup:
+                        Field:
+                            text := customRule.gameId
+                    
+                    Label:
+                        text = "Nom du jeu"
+                    HGroup:
+                        Field:
+                            text := customRule.name
+                    
+                    #
+                    Label:
+                        text = ""
+                    HGroup:
+                        Label:
+                            text = "Numéros"
+                        Label:
+                            text = "Etoiles"
+                    
+                    #
+                    Label:
+                        text = "Chiffre minimum"
+                    HGroup:
+                        IntField: minnbField:
+                            # maximum := maxnbField.value
+                            value   := customRule.minnb
+                        IntField: minetField: 
+                            # maximum := maxetField.value
+                            value   := customRule.minet
+                    #
+                    Label:
+                        text = "Chiffre maximum"
+                    HGroup:
+                        IntField: maxnbField:
+                            # minimum := minnbField.value
+                            value   := customRule.maxnb
+                        IntField: maxetField:
+                            # minimum := minetField.value
+                            value   := customRule.maxet
+
+        GroupBox: probasGroup:
+            title = "Probabilités"
+            # padding = 0
+            
+            Form:
+                Label:
+                    text = "Faux négatifs exclus"
+                    
+                HGroup:
+                    IntField:
+                        # value := probaModel.trueNegatives
+                        value = 0
+                    
+                    Label:
+                        text = ""
+                
+                # HGroup:
+                #     IntField:
+                #         value := probaModel.truePositives
+                #     Label:
+                #         text = ""
+                    
+
+
+enamldef GraphWindow(Window): window:
+    attr figure
+    
+    Container:
+        padding = 0
+        # minimum_size = (100,100)
+        
+        MPLCanvas: plotCanvas:    
+            toolbar_visible = True
+            figure << window.figure
+
+
+enamldef DataTableTBV(Window): window:
+    # Attributs pour la construction de l'objet
+    attr prefsModel
+    attr model
+    
+    # ...
+    attr serializeThisWindow : bool = False
+    attr serializationPath : str = None
+    
+    # ...
+    
+    # Paramètres des opérations
+    attr parameterEmphasis = 0b0000
+    
+    attr selectedTableIndexes = set()
+    attr currentOperation = None
+    attr operationSettingFrameLength = 10
+    
+    # Présentation de graphiques
+    attr presentationStyle : int = 0 # 0: TBV, 1: graphique, 
+    attr drawnFigure = Figure()
+    attr figureAx = None
+    
+
+    title << model.name
+    
+    # HGroup:
+    Container:
+        padding = 0
+        # constraints =[
+        #     # configPanel.width <= 400
+        #     # hbox(displayPanel, configPanel),
+        #     # configPanel.width==1/2*displayPanel.width
+        #     # grid(
+        #     #     [configPanel, displayPanel, displayPanel],
+        #     #     row_align='v_center',
+        #     #     column_align='width'
+        #     # )
+        #     ]
+        
+        Container: configPanel:
+            padding = 0
+            Container:
+                GroupBox:
+                    title = "Actions"
+                    padding = 0
+                    HGroup:
+                        # padding = 0
+                        
+                        HGroup:
+                            padding = 0
+                            
+                            # PushButton:
+                            #     text = "Rouvrir"
+                            #     clicked ::
+                            #         with open(window.serializationPath, "rb") as fh:
+                            #             tmp = pickle.load(fh)
+                            #             tmpDataModel = tmp['model']
+                            #             tmpPath = tmp['path']
+                            #             DataTableTBV(model=tmpDataModel, serializationPath=tmpPath).show()
+                            
+                            CheckBox: # pw_cb:
+                                text = "Sauvegarder"
+                                checked := window.serializeThisWindow
+                                clicked ::
+                                    if window.serializeThisWindow:
+                                        # called after the attribute has been set
+                                        os.makedirs(prefsModel.dataPersistenceDir, exist_ok=True)
+                                        # 
+                                        if window.serializationPath is None:
+                                            window.serializationPath = os.path.join(prefsModel.dataPersistenceDir, jmm.divers.makeRandomString(6))
+                                        
+                                        with open(window.serializationPath, "wb") as fh:
+                                            # pickle.dump( model , fh )
+                                            todump = {
+                                                'path':window.serializationPath,
+                                                'model':window.model
+                                                }
+                                            pickle.dump( todump, fh )
+                                    else:
+                                        # When unchecking the box, we delete the saved window data
+                                        if window.serializationPath and os.path.isfile( (window.serializationPath or '.')  ):
+                                            os.remove(window.serializationPath)
+                                    
+                        
+                            # un segmented control
+                            #    back
+                            #    front
+                            PushButton:
+                                text = "Annuler"
+                                enabled << window.model.previousStep() is not None
+                                clicked ::
+                                    # Retour en arrière sans forward buttton c'est facile
+                                    if window.model.previousStep():
+                                        window.model = window.model.previousStep()
+                        
+                        PushButton:
+                            text = "Preprocess"
+                            clicked :: window.parameterEmphasis = 0b0100
+                        
+                        PushButton:
+                            text = "Mesures"
+                            clicked :: window.parameterEmphasis = 0b0001
+                    
+                        # ComboBox:
+                        #     items << ["Tableau", "Plot", "Histogramme"] if (model.columnsSpanCount() == 1) else ["Tableau", "Plot"]
+                        #     index := window.presentationStyle
+                            
+                    
+                    Conditional:
+                        condition << window.parameterEmphasis == 0b0100
+                        GroupBox:
+                            title = "Preprocessing"
+                            HGroup:
+                                padding = 0
+                                PushButton:
+                                    text = "Inverser"
+                                    clicked :: window.model = window.model.transformed( sops.BasicOperations.reverseOperation() )
+                                
+                                PushButton:
+                                    text = "Sélection / Filtrage"
+                                    # clicked :: window.model = window.model.transformed( sops.BasicOperations.reverseOperation() )
+                                
+                                PushButton:
+                                    text = "Enlever colonne"
+                        
+                    Conditional:
+                        condition << window.parameterEmphasis == 0b0001
+                        
+                        GroupBox:
+                            title = "Mesures"
+                            
+                            HGroup:
+                                padding = 0
+                                PushButton:
+                                    text = "Effectif"
+                                    clicked ::
+                                        window.model = window.model.transformed( 
+                                            sops.StatisticsOperations.effectifOperation( 
+                                                window.operationSettingFrameLength ) )
+                                
+                                PushButton:
+                                    text = "Ecart"
+                                    clicked ::
+                                        window.model = window.model.transformed( 
+                                            sops.StatisticsOperations.currentGapOperation( 
+                                                window.operationSettingFrameLength ) )
+                            
+                            HGroup:
+                                padding = 0
+                                PushButton:
+                                    text = "Sommer ligne"
+                                    clicked :: window.model = window.model.transformed( sops.StatisticsOperations.sumRowOperation() )
+                                
+                                PushButton:
+                                    text = "Taux parité"
+                                    clicked ::
+                                        window.model = window.model.transformed( 
+                                            sops.StatisticsOperations.currentParityOperation( 
+                                                window.operationSettingFrameLength ) )
+                                
+                            # HGroup:
+                            #     padding = 0
+                                
+                            #     PushButton:
+                            #         text = "Répétitions"
+                            #         enabled = False
+                                
+                            #     PushButton:
+                            #         text = "N-uples"
+                            #         enabled = False
+                            
+                            #     PushButton:
+                            #         text = "Somme des numéros"
+                            #         enabled = False
+                                
+                            #     PushButton:
+                            #         text = "Somme chiffre des unités"
+                            #         enabled = False
+                            
+                        
+                GroupBox:
+                    title = "Paramètres"
+                    padding = 0
+                    
+                    HGroup:
+                        Form:
+                            padding = 0
+                            Label:
+                                text = "Taille de fenêtre:"
+                            IntField:
+                                value := window.operationSettingFrameLength
+                        
+                        Form:
+                            padding = 0
+                            Label:
+                                text = ""
+                            Label:
+                                text = ""
+                            # IntField:
+                            #     value = 0
+                        
+                
+                GroupBox:
+                    title = "Affichage"
+                    padding = 0
+                    
+                    HGroup:
+                        PushButton:
+                            text = "Tableau"
+                            enabled << not (window.presentationStyle == 0)
+                            clicked ::
+                                window.presentationStyle = 0
+                                pass
+                        
+                        PushButton:
+                            text = "Plot"
+                            enabled << not (window.presentationStyle == 1)
+                            clicked ::
+                                # window.presentationStyle = 1
+                                
+                                # Redraw
+                                window.drawnFigure = Figure()
+                                window.figureAx = window.drawnFigure.add_subplot(111) # if window.figureAx is None
+                                
+                                window.figureAx.plot(model.contentAsList())
+                                window.figureAx.set_title(model.name)
+                                window.figureAx.set_xlabel("...")
+                                window.figureAx.set_ylabel("Frequency")
+                                
+                                GraphWindow(figure=window.drawnFigure, title=model.name).show()
+                        
+                        PushButton:
+                            text = "Histogramme"
+                            enabled << not (window.presentationStyle == 2) and (model.columnsSpanCount() == 1)
+                            clicked ::
+                                # window.presentationStyle = 2
+                                
+                                # Redraw
+                                window.drawnFigure = Figure()
+                                window.figureAx = window.drawnFigure.add_subplot(111) # if window.figureAx is None
+                                
+                                window.figureAx.hist( model.contentAsList() )
+                                window.figureAx.set_title(model.name)
+                                window.figureAx.set_xlabel("Classes of ...")
+                                window.figureAx.set_ylabel("Frequency")
+                                
+                                GraphWindow(figure=window.drawnFigure, title=model.name).show()
+            
+        # Where we display the data (by table or by plot)
+        Container: displayPanel:
+            padding = 0
+            Conditional:
+                condition << ( window.presentationStyle & 0b11 ) >0
+                
+                MPLCanvas: canvas:
+                    # maximum_size = (640,500)
+                    # canvas.toolbar_visible
+                    toolbar_visible << True
+                    figure << window.drawnFigure
+            
+            
+            Conditional:
+                    condition << window.presentationStyle == 0
+                    
+                    TableView: table:
+                        minimum_size = (360,120)
+                        
+                        # horizontal_headers << ["id","key","#Sel#"] + [str(i) for i in list(range(1, model.columnsSpanCount()+1))]
+                        # horizontal_headers << ["id","#Sel#"] + [str(i) for i in list(range(1, model.columnsSpanCount()+1))]
+                        horizontal_headers << ["id"] + [str(i) for i in list(range(1, model.columnsSpanCount()+1))]
+                        horizontal_stretch = False
+                        items << model.rows
+                        
+                        Looper: rowLooper:
+                            #: Max number of visible rows
+                            #: If this number is too small, stuff will get jacked
+                            iterable << range(table.visible_rows)
+                            
+                            TableViewRow: tbvRow:
+                                row << table.visible_row + loop_index
+                                clicked ::
+                                    print("  Clicked row", row)
+                                    pass
+                                
+                                Conditional:
+                                    condition << len(model.rows) > 0
+                                    TableViewItem:
+                                        attr cellRow << tbvRow.row
+                                        # attr cellColumn << loop_index
+                                        #foreground = 'white'
+                                        #background = 'black'
+                                        text << str(model.rowAt(cellRow).id)
+                                    
+                                    # TableViewItem:
+                                    #     attr cellRow << tbvRow.row
+                                    #     # attr cellColumn << loop_index
+                                    #     text << str(model.rowAt(cellRow).sortKey)
+                                    
+                                    # # In order to remove some elements from the dataset:
+                                    # TableViewItem:
+                                    #     # text << tbvRow.row
+                                    #     checkable = True
+                                    #     checked << len(window.selectedTableIndexes & set([tbvRow.row])) > 0
+                                    #     clicked ::
+                                    #         isChecked = len(window.selectedTableIndexes & set([tbvRow.row])) > 0
+                                    #         if isChecked:
+                                    #             window.selectedTableIndexes = (window.selectedTableIndexes - set([tbvRow.row]))
+                                    #         else:
+                                    #             window.selectedTableIndexes = (window.selectedTableIndexes | set([tbvRow.row]))
+                                    #         pass
+                                    
+                                    Looper: columnLooper:
+                                        iterable << range( len(table.horizontal_headers) )
+                                        TableViewItem:
+                                            attr cellRow << tbvRow.row
+                                            attr cellColumn << loop_index
+
+                                            background << (loop_index&1 and 'gray') or 'white'
+                                            text_alignment = ('right', 'top')
+
+                                            # text << "(%s,%s)" % (cellRow, cellColumn)
+                                            # text << "(%s,%s)" % (tbvRow.row, loop_index)
+                                            text << str(model.elementAt(cellRow, cellColumn))
+                                            # clicked :: print("Clicked %s"%person.first_name)
+                                            pass
+                                    
+                                    # TableViewItem:
+                                    #     text << "table.visible_row: %s, loop_index: %s" % ( str(table.visible_row) , str(loop_index) )
+                            pass
+                        pass
+
+
+
+enamldef RandomDrawGenerator(Window): window:
+    attr prefsModel
+    attr delegate
+    attr customRule
+
+    Container:
+        # constraints << gen_constraints_prefsView(fileSelectionGroup, rulesGroup)
+        GroupBox:
+            title = "Paramètres"
+            padding = 0
+
+            Form:
+                padding = 6
+                Label:
+                    text = "Min nb"
+                IntField: minnbField:
+                    value = 1
+                    #text := prefsModel.drawsfile #["drawsfile"]
+                    #text ::
+                    #    print("Chemin:", text)
+                    #    pass
+                #
+                Label:
+                    text = "Max nb"
+                IntField: maxnbField:
+                    value = 50
+                #
+                Label:
+                    text = "Number of numbers"
+                IntField: nbrOfSymbolsField:
+                    value = 5
+
+                Label:
+                    text = "Allows repetition ?"
+                CheckBox: withRepetitionCheckbox:
+                    text << "%s"  % ("YES" if checked else "NO")
+                    checked = False
+
+                Label:
+                    text = "single digit -> 2 digits ?"
+                CheckBox: twoLetterCheckbox:
+                    text << "%s"  % ("YES" if checked else "NO")
+                    checked = True
+                
+        GroupBox:
+            title = "Resultats"
+            padding = 0
+
+            PushButton: drcBtn:
+                text = "Générer"
+                clicked ::
+                    import random
+                    universe = list(range(minnbField.value, maxnbField.value + 1))
+                    pool = universe.copy()
+                    draw = []
+                    for _ in range(nbrOfSymbolsField.value):
+                        sym = random.choice(pool)
+                        draw.append(sym)
+                        # do not pick stuff out of an empty bag
+                        if not withRepetitionCheckbox.checked:
+                            pool.remove(sym)
+                            if len(pool) == 0:
+                                break
+                    draw.sort()
+                    draw = [("0%s" % s) if int(s) < 10 and twoLetterCheckbox.checked else str(s)
+                            for s in draw]
+                    resultField.text = " - ".join(draw)
+                    pass
+
+            Field: resultField:
+                #text_alignment = ('center', 'top')
+                text = "tirage généré..."
+
+    pass
