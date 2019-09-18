@@ -14,8 +14,6 @@ from datetime import date, datetime
 from threading import Thread
 from urllib.parse import (unquote, quote)
 
-# local modules
-from .shell import JMShell  # imported to keep compatibility. Will be earased in time
 
 
 ################### Utils ####################
