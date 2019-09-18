@@ -6,3 +6,5 @@ python/jmm/__pycache__/
 python/jmm/datastructs/examples/tmp/
 python/jmm/.cache/v/cache/lastfailed
 jmm/.cache/v/cache/lastfailed
+jmm/datastructs/examples/launcher
+jmm/datastructs/examples/prefs.json
