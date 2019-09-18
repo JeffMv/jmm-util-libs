@@ -506,7 +506,12 @@ def sortedEffectif(eff, nis=None, reverse=False, returnSplitted=False):
 ################### Secure filewrite (not interrupted with keyboard interrupt) ####################
 
 
-def noInterruptFileWrite(content, filepath, binary=None, writeMode=None):
+def _writeToFilepath(content, filepath, binary=None, writeMode=None):
+    """Helper function to write into a path
+    :param content: the content you want to write to file
+    :param writeMode: the write mode as you would provide to the open() function ("b" for binary, "a"
+            for appending textual content, or "w" to replace textual content)
+    """
     if not writeMode:
         if binary is None:
             binary = isinstance(content, bytes)
@@ -517,15 +522,21 @@ def noInterruptFileWrite(content, filepath, binary=None, writeMode=None):
     parent = os.path.dirname(filepath)
     os.makedirs(parent, exist_ok=True) # avoid getting a FileNotFound exception if the path has the form "foo/bar"
     with open(filepath, writeMode) as of:
-        of.write( content )
+        of.write(content)
 
 
 def writeFileWithoutInterruption(content, filepath, binaryWrite=None, writeMode=None):
-    """Writes a file and do not stop writting even if the user wants to
-    quit the program (Ctrl+C)
+    """Writes a file without being affected by the user's Keyboard interruption (Ctrl+C / Cmd+C).
+    This way, the file should be fully written before the program can finally exit as requested by the
+    user.
+    :param content: the content you want to write to file
+    :param filepath: the filepath you want to save the file to.
+    :param binaryWrite: whether the content is binary and you want to write binary content
+    :param writeMode: the specific write mode you want, as you would provide to the open() function
+            ("b" for binary, "a" for appending textual content, or "w" to replace textual content)
     """
     try:
-        thr = Thread(target=noInterruptFileWrite, args=(content, filepath, binaryWrite, writeMode))
+        thr = Thread(target=_writeToFilepath, args=(content, filepath, binaryWrite, writeMode))
         thr.start()
         thr.join()
     except KeyboardInterrupt as err:
@@ -736,5 +747,4 @@ get_permutation = getPermutation
 sort_based_on = sortBasedOn
 sorted_effectif = sortedEffectif
 
-no_interrupt_file_write = noInterruptFileWrite
 write_file_without_interruption = writeFileWithoutInterruption
