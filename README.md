@@ -40,8 +40,8 @@ pip install git+https://github.com/JeffMv/jmm-util-libs.git@releases
 **Installing a specific version**
 
 ```bash
-# To install a specific version, for instance version with tag v0.1.2.8.4 just type
-pip install git+https://github.com/JeffMv/jmm-util-libs.git@v0.1.2.8.4
+# To install a specific version, for instance version with tag v0.1.2.9.0 just type
+pip install git+https://github.com/JeffMv/jmm-util-libs.git@v0.1.2.9.0
 ```
 
 
@@ -50,8 +50,8 @@ pip install git+https://github.com/JeffMv/jmm-util-libs.git@v0.1.2.8.4
 
 ```bash
 # Add this in the requirements.txt file
-# To install version v0.1.2.8.4 with the `parsing` extra
--e git+https://github.com/JeffMv/jmm-util-libs.git@v0.1.2.8.4 [parsing]
+# To install version v0.1.2.9.0 with the `parsing` extra
+-e git+https://github.com/JeffMv/jmm-util-libs.git@v0.1.2.9.0 [parsing]
 ```
 
 
