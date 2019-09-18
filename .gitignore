@@ -8,3 +8,4 @@ python/jmm/.cache/v/cache/lastfailed
 jmm/.cache/v/cache/lastfailed
 jmm/datastructs/examples/launcher
 jmm/datastructs/examples/prefs.json
+jmm/gui.py
