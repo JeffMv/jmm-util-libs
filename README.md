@@ -26,6 +26,26 @@ Notes on "*(semantic) versioning*" : https://semver.org
 
 #### Installing from Github
 
+**Installing the latest version**
+
+Stable releases are published in the `releases` branch. So to install the latest version, type:
+
+```bash
+# will install the latest version of branch `releases`
+pip install git+https://github.com/JeffMv/test-python-package-creation.git@releases
+```
+
+
+
+**Installing a specific version**
+
+```bash
+# To install a specific version, for instance version with tag v0.1.2.8.4 just type
+pip install git+https://github.com/JeffMv/jmm-util-libs.git@v0.1.2.8.4
+```
+
+
+
 
 
 In order to install a specific version from a git tag:
