@@ -11,7 +11,7 @@ from shutil import rmtree
 
 from setuptools import find_packages, setup, Command
 
-import version
+from jmm import version
 
 # Package meta-data.
 NAME = 'jmm'

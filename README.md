@@ -32,7 +32,7 @@ Stable releases are published in the `releases` branch. So to install the latest
 
 ```bash
 # will install the latest version of branch `releases`
-pip install git+https://github.com/JeffMv/test-python-package-creation.git@releases
+pip install git+https://github.com/JeffMv/jmm-util-libs.git@releases
 ```
 
 
@@ -42,6 +42,16 @@ pip install git+https://github.com/JeffMv/test-python-package-creation.git@relea
 ```bash
 # To install a specific version, for instance version with tag v0.1.2.8.4 just type
 pip install git+https://github.com/JeffMv/jmm-util-libs.git@v0.1.2.8.4
+```
+
+
+
+**Installing with extras**
+
+```bash
+# Add this in the requirements.txt file
+# To install version v0.1.2.8.4 with the `parsing` extra
+-e git+https://github.com/JeffMv/jmm-util-libs.git@v0.1.2.8.4 [parsing]
 ```
 
 
