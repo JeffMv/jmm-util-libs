@@ -45,7 +45,10 @@ def soupifyContent(content, clearWhitespaces=False):
     return BeautifulSoup(content, 'lxml')
 
 def soupifyRequestsResponse(resp, *args, **kwargs):
-    content = resp.content.decode(encoding=resp.encoding)
+    if resp.encoding:
+        content = resp.content.decode(encoding=resp.encoding)
+    else:
+        content = resp.content.decode()
     return soupify(content, *args, **kwargs)
 
 def soupifyFile(filepath, *args, **kwargs):
