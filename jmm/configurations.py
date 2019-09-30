@@ -90,3 +90,10 @@ def get_os_indentification_info():
         # Windows 64-bit
         is_win = True
     return is_linux, is_win, is_mac
+
+
+## Getting the battery level on MacOS from a shell call to os.system("pmset -g batt")
+# import subprocess
+# tmp = subprocess.run(["pmset", "-g", "batt"], stdout=subprocess.PIPE) if is_macos() else None
+# tmp.stdout.decode() if tmp is not None else None
+
