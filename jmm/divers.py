@@ -110,9 +110,29 @@ def replace_file_extension(path, extension):
 
 
 def append_to_basename(path, name):
-    ext = path.split('.')[-1]
-    base = ".".join(path.split('.')[:-1])
-    return base + name + '.' + ext
+    path = os.path.abspath(path)
+    directory = os.path.dirname(path)
+    last_part = os.path.basename(path)
+    
+    parts = last_part.split('.')
+    if len(parts) == 0:
+        # last_part might be a directory / file without extension
+        ext = None
+        base = last_part  # here: parts[0] == last_part
+    elif len(parts) == 2 and parts[0] == '':
+        # for cases like last_part = ".base-alone"
+        ext = None
+        base = last_part
+    elif last_part.find('..') == 0 and last_part.find(os.path.join('..', '')) < 0:
+        # for cases like path = "path/to/..something"
+        raise ValueError("Inconsistent basename")
+    else:
+        ext = parts[-1]
+        base = '.'.join(parts[:-1])
+    
+    base = base + name
+    filename = base + (("." + ext) if ext else '')
+    return os.path.join(directory, filename)
 
 
 def url_decode(s):

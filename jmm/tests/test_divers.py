@@ -110,6 +110,18 @@ def test_append_to_basename():
 	inputted = "/path/to/basename.exe"
 	expected = "/path/to/basename-file.exe"
 	assert script.append_to_basename(inputted, '-file') == expected
+	
+	inputted = ".secret/directory"
+	expected = ".secret/directory-stealth"
+	assert script.append_to_basename(inputted, '-stealth') == expected
+	
+	# "alone" is not an extension here
+	inputted = ".alone"
+	expected = ".alone-expected"
+	assert script.append_to_basename(inputted, '-expected') == expected
+	
+	with pytest.raises(ValueError):
+		script.append_to_basename("path/..value", 'anything')
 
 
 def test_insertInFile():
