@@ -7,7 +7,7 @@ import datetime
 
 import pytest
 
-import jmm.divers as script
+import jmm_utils.jmm.divers as script
 
 
 # def test_http_return(tmpdir, monkeypatch):
@@ -109,16 +109,16 @@ def test_replace_file_extension():
 def test_append_to_basename():
 	inputted = "/path/to/basename.exe"
 	expected = "/path/to/basename-file.exe"
-	assert script.append_to_basename(inputted, '-file') == expected
+	assert expected == script.append_to_basename(inputted, '-file')
 	
 	inputted = ".secret/directory"
 	expected = ".secret/directory-stealth"
-	assert script.append_to_basename(inputted, '-stealth') == expected
+	assert expected == script.append_to_basename(inputted, '-stealth')
 	
 	# "alone" is not an extension here
 	inputted = ".alone"
 	expected = ".alone-expected"
-	assert script.append_to_basename(inputted, '-expected') == expected
+	assert expected == script.append_to_basename(inputted, '-expected')
 	
 	with pytest.raises(ValueError):
 		script.append_to_basename("path/..value", 'anything')
@@ -290,25 +290,45 @@ def test_flatten_iterable():
 
 
 
-def test_sklearn_matrix_with_list():
-	script.sklearn_matrix_with_list
-	assert False
-
 def test_valuesForTrue():
-	script.valuesForTrue
-	assert False
+	array = list(range(-1, 10))
+	arg = lambda x, i: i % 2 == 0  # even INDEXES
+	expected = [-1, 1, 3, 5, 7, 9]
+	assert expected == list(script.valuesForTrue(arg, array))
+	
+	array = list(range(995, 1001))
+	arg = lambda x, i: i % 2 == 0  # even INDEXES
+	expected = [995, 997, 999]
+	assert expected == list(script.valuesForTrue(arg, array))
+	
+	arg = lambda x, i: x % 2 == 0  # even NUMBERS
+	expected = [996, 998, 1000]
+	assert expected == list(script.valuesForTrue(arg, array))
+	
+	arg = [True, False, False, 0, 0, 1]
+	expected = [995, 1000]
+	assert expected == list(script.valuesForTrue(arg, array))
+
 
 def test_sortBasedOn():
-	script.sortBasedOn
-	assert False
+	array = ["Salamander", ".1nd", 314, -134, [], 3993]
+	inputted = [4, 5, 0, 10000, -999, -10]
+	expected = [[], 3993, 314, "Salamander", ".1nd", -134]
+	assert expected == script.sortBasedOn(inputted, array)
 
 def test_getPermutation():
-	script.getPermutation
-	assert False
+	inputted = [4, 5, 0, 10000, -999, -10]
+	array = list(sorted(inputted))
+	# the permutation we need to apply to get array
+	expected = [4, 5, 2, 0, 1, 3]
+	assert expected == script.getPermutation(inputted, array)
 
 def test_applyPermutation():
-	script.applyPermutation
-	assert False
+	inputted = [4, 5, 0, 10000, -999, -10]
+	# a permutation that will sort the inputted in increasing order
+	permutation = [4, 5, 2, 0, 1, 3]
+	expected = list(sorted(inputted))
+	assert expected == script.applyPermutation(inputted, permutation)
 
 def test_sortedEffectif():
 	script.sortedEffectif
