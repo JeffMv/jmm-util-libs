@@ -120,7 +120,7 @@ def test_append_to_basename():
 	expected = ".alone-expected"
 	assert expected == script.append_to_basename(inputted, '-expected')
 	
-	with pytest.raises(ValueError):
+	with pytest.raises(ValueError):  # feel free to change the exception type
 		script.append_to_basename("path/..value", 'anything')
 
 

@@ -110,12 +110,12 @@ def replace_file_extension(path, extension):
 
 
 def append_to_basename(path, name):
-    path = os.path.abspath(path)
+    path = path[:-1] if path.endswith(os.path.sep) else path
     directory = os.path.dirname(path)
     last_part = os.path.basename(path)
     
     parts = last_part.split('.')
-    if len(parts) == 0:
+    if len(parts) == 1:
         # last_part might be a directory / file without extension
         ext = None
         base = last_part  # here: parts[0] == last_part

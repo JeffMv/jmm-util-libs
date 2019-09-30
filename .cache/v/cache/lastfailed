@@ -1,5 +1,4 @@
 {
-  "jmm/tests/test_divers.py::test_append_to_basename": true,
   "jmm/tests/test_divers.py::test_description_of_dict_architecture": true,
   "jmm/tests/test_divers.py::test_effectif": true,
   "jmm/tests/test_divers.py::test_effectif_u": true,
