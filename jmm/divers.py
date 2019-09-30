@@ -393,30 +393,44 @@ def fill_empty_dict_entries(adict, *other_dicts):
     return adict, empty_entries
 
 
-def numpy_matrix_with_list(aList):
-    if isinstance(aList[0], list):
-        m = np.matrix(aList).T
-    else:
-        m = np.matrix( [aList] ).T
-    return m
-
-
 
 
 
 ################### Sorting ####################
 
 
-def valuesForTrue(values, rule):
-    res = []
-    for i,v in enumerate( values ):
-        try:
-            shouldKeep = rule(v)
-        except:
-            shouldKeep = rule[i]
+def valuesForTrue(rule, values):
+    """An helper generator to filter iterators. Unlike the filter function,
+    it passes the index of the element in the iteration process.
+    :param rule: Rule that says whether or 
+            Either a list of booleans or a function taking (value, index) as arguments.
+    :param values: iterator to filter
+    :return: yields values that meet the rule
+    """
+    iterator = iter(values)
+    val = next(iterator)
+    try:
+        _ = rule(val, 0)
+        is_func = True
+        filter_func = lambda x, i: rule(x, i)
+    except:
+        is_func = False
+        # this way, external modification won't affect the generator
+        rule = rule.copy()
+        filter_func = lambda x, i: rule[i]  # bool(rule[i])
+    
+    # res = []
+    shouldKeep = filter_func(val, 0)
+    if shouldKeep:
+        yield val
+        # res.append(val)
+    
+    for i, val in enumerate(iterator):
+        shouldKeep = filter_func(val, i + 1)  # the first value has was consummed
         if shouldKeep:
-            res.append(v)
-    return res
+            # res.append(val)
+            yield val
+    # return res
 
 def sortBasedOn(base, *toSort, reverse=False):
     """
@@ -758,7 +772,6 @@ flattenList = flatten_list
 flattenIterable = flatten_iterable
 fillEmptyDictEntries = fill_empty_dict_entries
 
-numpyMatrixWithList = numpy_matrix_with_list
 
 ## Sorting
 values_for_true = valuesForTrue
