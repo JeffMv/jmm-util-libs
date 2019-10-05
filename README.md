@@ -32,6 +32,7 @@ Stable releases are published in the `releases` branch. So to install the latest
 
 ```bash
 # will install the latest version of branch `releases`
+# (add the -U option when you want to update, like "pip install -U ...")
 pip install git+https://github.com/JeffMv/jmm-util-libs.git@releases
 ```
 
@@ -41,6 +42,7 @@ pip install git+https://github.com/JeffMv/jmm-util-libs.git@releases
 
 ```bash
 # To install a specific version, for instance version with tag v0.1.2.9.0 just type
+# (add the -U option when you want to update, like "pip install -U ...")
 pip install git+https://github.com/JeffMv/jmm-util-libs.git@v0.1.2.9.0
 ```
 
@@ -58,7 +60,7 @@ pip install git+https://github.com/JeffMv/jmm-util-libs.git@v0.1.2.9.0
 
 
 
-In order to install a specific version from a git tag:
+General info: In order to install a specific version from a git tag:
 
 ```bash
 pip install -e "git://github.com/{ username }/{ reponame }.git@{ tag name }#egg={ desired egg name }"

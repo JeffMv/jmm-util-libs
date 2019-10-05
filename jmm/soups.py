@@ -4,6 +4,7 @@
 """
 
 from .divers import *
+# from .divers import (getPermutation, applyPermutation, effectif)
 
 from bs4 import BeautifulSoup
 
@@ -12,14 +13,13 @@ import statistics
 
 ################### Soupification ####################
 
-def soupify(elmt, *args, **kwargs):
+def soupify(elmt, *args, encoding=None, **kwargs):
     """
     :param elmt:
     :param encoding: ... default 'utf-8'
     """
     soup = None
     if isinstance(elmt, bytes):
-        encoding = kwargs.get('encoding')
         encoding = encoding if encoding else 'utf-8'
         elmt = elmt.decode(encoding=encoding)
     else:
@@ -28,8 +28,9 @@ def soupify(elmt, *args, **kwargs):
             requestsResponse = elmt
             elmt = requestsResponse.content.decode(encoding=requestsResponse.encoding)
         except:
+            # so maybe it is a <str> so it will stay a str.
             pass
-    soup = soupifyContent(elmt)
+    soup = soupifyContent(elmt, *args, **kwargs)
     return soup
 
 def soupifyContent(content, clearWhitespaces=False):
@@ -58,112 +59,31 @@ def soupifyFile(filepath, *args, **kwargs):
     return soup
 
 
+def yosengu():
+    pass
+
 
 #######   AUTOMATIC   ARTICLE   NODE   DETECTION   #######
-
-def getIdAndClasses(tag):
-    try:
-        tId = tag['id']
-    except KeyError:
-        tId = None
-    #
-    try:
-        tClasses = tag['class']
-    except:
-        tClasses = []
-    #
-    return {'id': tId, 'class':tClasses}
-
-
-def getClassHistogram(aSoup):
-    allTags = aSoup.find_all(True)
-    #basicAttrs = [getIdAndClasses(tag) for tag in allTags]
-    classes = [tag['class'] for tag in allTags if tag.get('class')]
-    allClasses = []
-    for cs in classes:
-        allClasses += cs
-    # faire statistique
-    _hist = effectif(allClasses)
-    uclasses = [key for key in list(_hist)]
-    nbrs = [_hist[key] for key in list(_hist)]
-    #
-    oNbrs = sorted(nbrs, reverse=True) # greatest first
-    _perm = getPermutation(nbrs, oNbrs)
-    oclasses = applyPermutation(uclasses, _perm)
-    return (oclasses, oNbrs)
-
-
-def filterClassesHistogram(aSoup, minNbrOccurrences=None, maxNbrOccurrences=None):
-    """
-    :param aSoup:
-    :param minNbrOccurrences:
-    :param minNbrOccurrences:
-    :return: classes, counts
-    """
-    cls,nbr = getClassHistogram(aSoup)
-    _min = minNbrOccurrences if minNbrOccurrences!=None else min(nbr)
-    _max = maxNbrOccurrences if maxNbrOccurrences!=None else max(nbr)
-    indices = [i for i, c in enumerate(cls) if (_min <= nbr[i] and nbr[i] <= _max)]
-    classes = [cls[i] for i in indices]
-    counts = [nbr[i] for i in indices]
-    return classes, counts
-
-
-def filterPossibleArticleRelatedClasses(aSoup, minNbrOccurrences=4, maxNbrOccurrences=None):
-    """
-    :param aSoup:
-    :param minNbrOccurrences:
-    :param maxNbrOccurrences:
-    :return: classes, nbrs
-    """
-    # default value
-    classes,nbrs = filterClassesHistogram(aSoup, minNbrOccurrences, maxNbrOccurrences)
-    return classes,nbrs
-
-
-def getMostPlausibleArticleClasses(aSoup, **kwargs):
-    """For HTML soups containing articles/products. Analyses the soup and
-    inferes what the classes of the product nodes must be.
-    
-    :param aSoup: HTML code containing at least the enclosing node of the
-                articles/products you would like to retrieve.
-    :param **kwargs: you may pass parameters for the helper method
-                `filterPossibleArticleRelatedClasses` (min/max nbr of
-                arguments, see the function docstring).
-    
-    :return: articleRelatedClasses, articleRelatedClassesOccurrences
-                articleRelatedClasses: the most plausible classes that seem to
-                    describe an article node.
-                articleRelatedClassesOccurrences: the corresponding number of
-                    occurances of the corresponding class
-    """
-    if 'minNbrOccurrences' in kwargs:
-        regularMin = kwargs.get('minNbrOccurrences')
-        # without this line, can cause TypeError for duplicate keyword argument error 
-        kwargs.pop('minNbrOccurrences')
-    else:
-        regularMin = 6
-    #
-    classes,nbrs = filterPossibleArticleRelatedClasses(aSoup, minNbrOccurrences=regularMin, **kwargs)
-    try:
-        mostReccurentSetOfClassEff = statistics.mode(nbrs) # articles have the same classes for different tags in the hierarchy
-    except statistics.StatisticsError:
-        _dNsEffs = effectif(nbrs)
-        _ns = list(_dNsEffs)
-        _effs = [_dNsEffs[key] for key in _ns]
-        mostReccurentSetOfClassEff = _ns[_effs.index( max(_effs) )]
-    articleRelatedClasses = [classes[i] for i,n in enumerate(nbrs) if n==mostReccurentSetOfClassEff]
-    articleRelatedClassesOccurrences = [nbrs[i] for i,n in enumerate(nbrs) if n==mostReccurentSetOfClassEff]
-    return articleRelatedClasses, articleRelatedClassesOccurrences
 
 
 def extractPlausibleArticleNodes(aSoup, tagNameRestrictionCollection=None, **kwargs):
     """Analyses a BeautifulSoup soup of an HTML page in order to infere and
-    extract nodes that look like article nodes.
+    automaticaclly extract nodes that look like article nodes.
     The page provided must have several articles on it (for instance a catalog
-    page).
-    In general, this function can be used to find nodes of repeated similar
-    things in an HTML page.
+    page) for this to work. It just works like magic:
+    
+    It works by analyzing the distribution of CSS classes and deduces which
+    elements must be the constituant of the main article contents (be it products
+    or blog article headers, ...).
+    More generally, this function can be used to find nodes of repeated similar
+    things of interest in an HTML page. Especially elements that share common
+    CSS styling.
+    
+    See the magic:
+    >>> # import requests; resp = requests.get("https://www.ricardo.ch");
+    >>> # from bs4 import BeautifulSoup; soup = BeautifulSoup(resp.content.decode(), 'html.parser')
+    >>> nodes = extractPlausibleArticleNodes(soup)
+    >>> print(nodes[0].get_text())  # and see the magic!
     
     :note: This function only works on elements that do not have
             It looks and analyses several things (the classes, ...)
@@ -231,6 +151,107 @@ def extractPlausibleArticleNodes(aSoup, tagNameRestrictionCollection=None, **kwa
     # entre ce tag t et le tag de reference (mostEnclosingTag)
     #
     return list( plausibleArticleTags )
+
+
+def getMostPlausibleArticleClasses(aSoup, **kwargs):
+    """For HTML soups containing articles/products. Analyses the soup and
+    inferes what the classes of the product nodes must be.
+    
+    :param aSoup: HTML code containing at least the enclosing node of the
+                articles/products you would like to retrieve.
+    :param **kwargs: you may pass parameters for the helper method
+                `filterPossibleArticleRelatedClasses` (min/max nbr of
+                arguments, see the function docstring).
+    
+    :return: articleRelatedClasses, articleRelatedClassesOccurrences
+                articleRelatedClasses: the most plausible classes that seem to
+                    describe an article node.
+                articleRelatedClassesOccurrences: the corresponding number of
+                    occurances of the corresponding class
+    """
+    if 'minNbrOccurrences' in kwargs:
+        regularMin = kwargs.get('minNbrOccurrences')
+        # without this line, can cause TypeError for duplicate keyword argument error 
+        kwargs.pop('minNbrOccurrences')
+    else:
+        regularMin = 6
+    #
+    classes,nbrs = filterPossibleArticleRelatedClasses(aSoup, minNbrOccurrences=regularMin, **kwargs)
+    try:
+        # articles have the same classes for different tags in the hierarchy
+        mostReccurentSetOfClassEff = statistics.mode(nbrs)
+    except statistics.StatisticsError:
+        _dNsEffs = effectif(nbrs)
+        _ns = list(_dNsEffs)
+        _effs = [_dNsEffs[key] for key in _ns]
+        mostReccurentSetOfClassEff = _ns[_effs.index( max(_effs) )]
+    articleRelatedClasses = [classes[i] for i,n in enumerate(nbrs) if n==mostReccurentSetOfClassEff]
+    articleRelatedClassesOccurrences = [nbrs[i] for i,n in enumerate(nbrs) if n==mostReccurentSetOfClassEff]
+    return articleRelatedClasses, articleRelatedClassesOccurrences
+
+
+def filterPossibleArticleRelatedClasses(aSoup, minNbrOccurrences=4, maxNbrOccurrences=None):
+    """
+    :param aSoup:
+    :param minNbrOccurrences:
+    :param maxNbrOccurrences:
+    :return: classes, nbrs
+    """
+    # default value
+    classes, nbrs = filterClassesHistogram(aSoup, minNbrOccurrences, maxNbrOccurrences)
+    return classes,nbrs
+
+
+def filterClassesHistogram(aSoup, minNbrOccurrences=None, maxNbrOccurrences=None):
+    """
+    :param aSoup:
+    :param minNbrOccurrences:
+    :param minNbrOccurrences:
+    :return: classes, counts
+    """
+    cls,nbr = getClassHistogram(aSoup)
+    _min = minNbrOccurrences if minNbrOccurrences!=None else min(nbr)
+    _max = maxNbrOccurrences if maxNbrOccurrences!=None else max(nbr)
+    indices = [i for i, c in enumerate(cls) if (_min <= nbr[i] and nbr[i] <= _max)]
+    classes = [cls[i] for i in indices]
+    counts = [nbr[i] for i in indices]
+    return classes, counts
+
+
+def getClassHistogram(aSoup):
+    """
+    """
+    ###
+    allTags = aSoup.find_all(True)
+    #basicAttrs = [getIdAndClasses(tag) for tag in allTags]
+    classes = [tag['class'] for tag in allTags if tag.get('class')]
+    allClasses = []
+    for cs in classes:
+        allClasses += cs
+    # faire statistique
+    _hist = effectif(allClasses)
+    uclasses = [key for key in list(_hist)]
+    nbrs = [_hist[key] for key in list(_hist)]
+    #
+    oNbrs = sorted(nbrs, reverse=True) # greatest first
+    _perm = getPermutation(nbrs, oNbrs)
+    oclasses = applyPermutation(uclasses, _perm)
+    return (oclasses, oNbrs)
+
+
+def getIdAndClasses(tag):
+    try:
+        tId = tag['id']
+    except KeyError:
+        tId = None
+    #
+    try:
+        tClasses = tag['class']
+    except:
+        tClasses = []
+    #
+    return {'id': tId, 'class':tClasses}
+
 
 
 #######   / AUTOMATIC   ARTICLE   NODE   DETECTION   #######
