@@ -196,10 +196,13 @@ class SeleniumHelper(object):
     ### ---------------------- ###
     
     def get(self, url):
+        """Navigates to the given url, and returns self, allowing to chain
+        calls.
+        :return: self
+        """
         self.driver.get(url)
-        return self.driver
+        return self
     
-    # def getAWait(self, driver):
     def getAWait(self):
         driver = self.driver
         wait = ui.WebDriverWait(driver, 1000)
@@ -214,14 +217,17 @@ class SeleniumHelper(object):
         tmp = s*1000 + ms
         t0 = time.time()
         self.wait.until( lambda _ : 1000*(time.time() - t0) > tmp )
+        return self
     
     def waitTillExists(self, selector):
         doesExist = lambda _: self.elementExists(selector)
         # doesNotExist = lambda _: not doesExist(selector)
         self.wait.until( doesExist )
+        return self
     
     def waitTillUrlContains(self, contains):
         self.wait.until(ExpectedConditions.url_contains(contains))
+        return self
     
     def get_current_url(self):
         return self.browser.current_url
@@ -282,7 +288,10 @@ class SeleniumHelper(object):
     def enter_textfield(self, *args, **kwargs):
         return self.enterTextField(*args, **kwargs)
 
-    # def click_element(self, element, driver):
+    def click_element_silently(self, element):
+        self.click_element(element)
+        return self
+
     def click_element(self, element):
         """Tries to perform a click on an element and fallbacks on JS click if browser click does not work.
         :param element: a selector or an element you want to click
