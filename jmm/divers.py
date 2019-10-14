@@ -794,7 +794,7 @@ concatenateSublists = concatenate_sublists
 flattenList = flatten_list
 flattenIterable = flatten_iterable
 fillEmptyDictEntries = fill_empty_dict_entries
-
+splitEvenlyInIncreasingOrder = split_evenly_in_increasing_order
 
 ## Sorting
 values_for_true = valuesForTrue
