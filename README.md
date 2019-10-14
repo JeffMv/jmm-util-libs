@@ -32,8 +32,8 @@ Stable releases are published in the `releases` branch. So to install the latest
 
 ```bash
 # will install the latest version of branch `releases`
-# (add the -U option when you want to update, like "pip install -U ...")
-pip install git+https://github.com/JeffMv/jmm-util-libs.git@releases
+# (the -U option allows you to update the package)
+pip install -U git+https://github.com/JeffMv/jmm-util-libs.git@releases
 ```
 
 
