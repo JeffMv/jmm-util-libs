@@ -282,11 +282,12 @@ def test_flattening_iterables():
 	assert script.flatten_iterable(array) == expected
 	assert script.flatten_iterable(iter(array)) == expected
 	
-	assert False
-
-
-def test_flatten_iterable():
-	assert False
+	# Maybe more tests should be added, both for usage expectation and
+	# spotting potential errors.
+	# Such tests may include, but not limited to:
+	# - input testing: errors raised ?
+	# - more complex flattening
+	# assert False
 
 
 def test_split_evenly_in_increasing_order():
@@ -401,7 +402,13 @@ def test_description_of_dict_architecture():
 	# expected = {}
 	assert expected == script.description_of_dict_architecture(inputted, threshold, levels)
 	
-	assert False
+	# Maybe more tests should be added, both for usage expectation and
+	# spotting potential errors.
+	# Such tests may include, but not limited to:
+	# - input testing: errors raised ?
+	# - more complex descriptions
+	# assert False
+
 
 def test_split_to_ints():
 	inputted = "12-23-34-49-50"
