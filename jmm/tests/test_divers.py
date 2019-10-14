@@ -289,6 +289,26 @@ def test_flatten_iterable():
 	assert False
 
 
+def test_split_evenly_in_increasing_order():
+	array = list(range(20, 31))
+	groups = 3
+	expected = [[20,23,26,29],[21,24,27,30],[22,25,28]]
+	
+	assert expected == script.split_evenly_in_increasing_order(array, groups)
+	
+	groups = 2
+	expected = [list(range(20, 31, 2)), list(range(21, 31, 2))]
+	assert expected == script.split_evenly_in_increasing_order(array, groups)
+	
+	array = list(range(20, 30))
+	groups = 2
+	expected = [list(range(20, 30, 2)), list(range(21, 30, 2))]
+	assert expected == script.split_evenly_in_increasing_order(array, groups)
+	
+	groups = 3
+	expected = [[20,23,26,29],[21,24,27],[22,25,28]]
+	assert expected == script.split_evenly_in_increasing_order(array, groups)
+
 
 def test_valuesForTrue():
 	array = list(range(-1, 10))

@@ -246,6 +246,14 @@ class SeleniumHelper(object):
         return self.getChildElements(self.driver, selector, *args, **kwargs)
 
     def getChildElement(self, parent, relative_selector, satisfying=None):
+        """
+        :param parent: the parent node against whos children the search
+                    parameters will be matched.
+        :param relative_selector: the selector relatively to the parent element
+        :param func satisfying: a filter function that returns True for
+                    elements you want to keep. The other elements will be
+                    dropped.
+        """
         if satisfying is None:
             # performance: use default implementation unless necessary
             return parent.find_element_by_css_selector(relative_selector)
@@ -264,6 +272,28 @@ class SeleniumHelper(object):
         # We could also use the Select class
         # https://stackoverflow.com/a/28613320/4418092
         return select_element.find_element_by_css_selector(relative_selector)
+
+    def getElementsContainingText(self, text, tag_name="*", element=None):
+        """
+        """
+        # :param match_case: Tells whether we should match the text with the 
+        #         upper/lower case of the text contained in the document.
+        #         Passing None will not preprocess the text of the document.
+        #         Possible values: None/'upper'/'lower'
+        
+        element = element if element is not None else self.driver
+        
+        # See https://stackoverflow.com/q/3655549/4418092
+        xpath_selector = """//%s[text()[contains(., '%s')]]""" % (tag_name, text)
+        matches = driver.find_elements_by_xpath(xpath_selector)
+        return matches
+    
+    def getElementContainingText(self, *args, **kwargs):
+        """
+        """
+        matches = self.getElementsContainingText(*args, **kwargs)
+        return matches[0] if len(matches) > 0 else None
+        
 
     def elementExists(self, selector):
         try:
@@ -289,7 +319,7 @@ class SeleniumHelper(object):
         return self.enterTextField(*args, **kwargs)
 
     def click_element_silently(self, element):
-        self.click_element(element)
+        _ = self.click_element(element)
         return self
 
     def click_element(self, element):

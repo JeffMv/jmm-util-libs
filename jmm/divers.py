@@ -347,6 +347,29 @@ def effectif_u(arr, U=None, returnSplitted=False, hashAsString=False, asFrequenc
 ######## Data structures manipulation #########
 
 
+def split_evenly_in_increasing_order(arr, nbGroups):
+    """Splits an array evenly and returns the result.
+    :param list arr:
+    :param int nbGroups:
+    :return: list<list<>>
+    >>> split_evenly_in_increasing_order(list(range(20, 31), 3))
+    [[20, 23, 26, 29], [21, 24, 27,30], [22, 25, 28]]
+    """
+    remainder = len(arr) % nbGroups
+    upto = len(arr) - remainder
+    groupLength = (len(arr) - remainder) // nbGroups
+    
+    result = [[] for _ in range(nbGroups)]
+    indexGroups = []
+    for groupIndex in range(nbGroups):
+        targetGroupIndexes = range(0 + groupIndex, len(arr), nbGroups)
+        indexGroups.append(list(targetGroupIndexes))
+        for mainArrIndex in targetGroupIndexes:
+            value = arr[mainArrIndex]
+            result[groupIndex].append(value)
+    
+    return result
+
 
 def flatten_iterable(array):
     """
