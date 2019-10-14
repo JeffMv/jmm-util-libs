@@ -291,9 +291,13 @@ def test_flatten_iterable():
 
 def test_split_evenly_in_increasing_order():
 	array = list(range(20, 31))
+	groups = 1
+	expected = [array]
+	assert expected == script.split_evenly_in_increasing_order(array, groups)
+	
+	array = list(range(20, 31))
 	groups = 3
 	expected = [[20,23,26,29],[21,24,27,30],[22,25,28]]
-	
 	assert expected == script.split_evenly_in_increasing_order(array, groups)
 	
 	groups = 2
