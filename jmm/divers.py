@@ -135,6 +135,17 @@ def append_to_basename(path, name):
     return os.path.join(directory, filename)
 
 
+def get_file_size(filepath):
+    """Returns the file size of a specified file in bytes.
+    :param filepath:
+    :throw: FileNotFoundError if file does not exist
+    """
+    size = os.path.getsize(filepath)
+    # or
+    # size = os.stat(filepath).st_size
+    return size
+
+
 def url_decode(s):
     return unquote(s)
 
@@ -268,7 +279,7 @@ def frequences(arr, returnSplitted=True, hashAsString=False, U=None, frequencies
         return effectifU(arr, U, returnSplitted, hashAsString, True, frequenciesOverUniverse)
     
 
-def effectif(arr, returnSplitted=False, hashAsString=False, asFrequencies=False, inputConverter=None):
+def effectif(arr, returnSplitted=False, hashAsString=False, frequencies=False, inputConverter=None, sort=False, reverse=False):
     """calcule l'effectif
     :param list arr: une liste
     :param bool hashAsString: whether we should convert the values in 'arr' to
@@ -278,6 +289,8 @@ def effectif(arr, returnSplitted=False, hashAsString=False, asFrequencies=False,
                 compared as. When not provided, the identity function is used.
                 If used with parameter 'hashAsString', the hashed value will be
                 the one returned by this function.
+    :param bool sort: sort the result (only if returnSplitted). Shorthand for `sortBasedOn`
+    :param bool reverse: reverse the order (only if sort and returnSplitted). Shorthand for `sortBasedOn`
     """
     inputConverter = (lambda x: x) if inputConverter is None else inputConverter
     effs = {}
@@ -289,7 +302,7 @@ def effectif(arr, returnSplitted=False, hashAsString=False, asFrequencies=False,
         except:
             effs[key] = 1
     
-    if asFrequencies:
+    if frequencies:
         tot = sum(effs.values())
         for key in effs:
             effs[key] = effs[key]/tot
@@ -297,12 +310,14 @@ def effectif(arr, returnSplitted=False, hashAsString=False, asFrequencies=False,
     if returnSplitted:
         xis = list(effs.keys())
         nis = list(effs.values())
+        if sort:
+            xis, nis = sortBasedOn(nis, xis, nis, reverse=reverse)
         return xis, nis
     
     return effs
 
 
-def effectif_u(arr, U=None, returnSplitted=False, hashAsString=False, asFrequencies=False, frequenciesOverUniverse=True, inputConverter=None):
+def effectif_u(arr, U=None, returnSplitted=False, hashAsString=False, frequencies=False, frequenciesOverUniverse=True, inputConverter=None):
     """calcule l'effectif
     :param arr: une liste
     :param U: (univers) liste des valeurs possibles
@@ -328,7 +343,7 @@ def effectif_u(arr, U=None, returnSplitted=False, hashAsString=False, asFrequenc
         except:
             pass  # do not count values that are not in the given universe
     
-    if asFrequencies:
+    if frequencies:
         tot = sum(effs.values()) if frequenciesOverUniverse else len(arr)
         for key in effs:
             effs[key] = effs[key]/tot
@@ -416,6 +431,34 @@ def fill_empty_dict_entries(adict, *other_dicts):
     return adict, empty_entries
 
 
+def flatten_dict(collection, delim):
+    """Flattens a dictionary by recursively appending the paths to the end nodes.
+    :param collection: 
+    :param str delim: the delimiter to join the paths with
+    :source: https://stackoverflow.com/a/28246154/4418092
+    """
+    val = {}
+    if isinstance(collection, dict):
+        for i in collection.keys():
+            if isinstance( collection[i], dict ):
+                subvalues = flatten_dict( collection[i], delim )
+                for j in subvalues.keys():
+                    val[ i + delim + j ] = subvalues[j]
+            elif isinstance(collection[i], list):
+                subvalues = flatten_dict( collection[i], delim )
+                for j in subvalues.keys():
+                    val[ i + delim + j ] = subvalues[j]
+                
+                #for k in range(len(collection[i])):
+                #    val[ i + delim + str(k) ] = flatten_dict(collection[i], delim)
+            else:
+                val[i] = collection[i]
+    elif isinstance(collection, list):
+        val = flatten_dict({str(i): flatten_dict(elmt, delim) for i, elmt in enumerate(collection)}, delim)
+        pass
+    # else:  # scalars and custom types are already handled above
+
+    return val
 
 
 
@@ -577,7 +620,7 @@ def _writeToFilepath(content, filepath, binary=None, writeMode=None):
     content = content if binary or isinstance(content, str) else str(content)
 
     parent = os.path.dirname(filepath)
-    os.makedirs(parent, exist_ok=True) # avoid getting a FileNotFound exception if the path has the form "foo/bar"
+    os.makedirs(parent, exist_ok=True) # avoid getting a FileNotFoundError if the path has the form "foo/bar"
     with open(filepath, writeMode) as of:
         of.write(content)
 
@@ -744,8 +787,16 @@ def splitToInts(arg, sep=','):
     return arr
 
 
-def make_random_string(length, secure=False, characters=(string.ascii_uppercase + string.ascii_lowercase + string.digits) ):
+def random_string(length, secure=False, characters=None):
+    """Generates a random string
+    :param length: length of the string to return
+    :param bool secure: ... (see this answer: https://stackoverflow.com/a/23728630/4418092)
+    :param characters: a collection of characters to construct the string with.
+                Default will be all ASCII letters and numbers
+    :return: a random string
+    """
     # see this answer: https://stackoverflow.com/a/23728630/4418092
+    characters = (string.ascii_uppercase + string.ascii_lowercase + string.digits) if characters is None else characters
     N = length
     if secure:
         s = ''.join( random.SystemRandom().choice(characters) for _ in range(N) )
@@ -753,6 +804,8 @@ def make_random_string(length, secure=False, characters=(string.ascii_uppercase 
         s = ''.join(random.choices(characters, k=N))
     return s
 
+def make_random_string(length, secure=False, characters=None):
+    return random_string(length, secure, characters)
 
 # def recursivelyInspectKeys(aDict):
 #     res = None
@@ -794,6 +847,7 @@ concatenateSublists = concatenate_sublists
 flattenList = flatten_list
 flattenIterable = flatten_iterable
 fillEmptyDictEntries = fill_empty_dict_entries
+flattenDict = flatten_dict
 splitEvenlyInIncreasingOrder = split_evenly_in_increasing_order
 
 ## Sorting
