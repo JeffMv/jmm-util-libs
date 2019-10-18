@@ -431,6 +431,9 @@ def fill_empty_dict_entries(adict, *other_dicts):
     return adict, empty_entries
 
 
+def flatten_json(collection, delim):
+    return (flatten_dict(collection, delim))
+
 def flatten_dict(collection, delim):
     """Flattens a dictionary by recursively appending the paths to the end nodes.
     :param collection: 
@@ -848,6 +851,7 @@ flattenList = flatten_list
 flattenIterable = flatten_iterable
 fillEmptyDictEntries = fill_empty_dict_entries
 flattenDict = flatten_dict
+flattenJson = flatten_json
 splitEvenlyInIncreasingOrder = split_evenly_in_increasing_order
 
 ## Sorting
