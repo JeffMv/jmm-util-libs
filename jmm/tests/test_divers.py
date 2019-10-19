@@ -315,6 +315,42 @@ def test_split_evenly_in_increasing_order():
 	assert expected == script.split_evenly_in_increasing_order(array, groups)
 
 
+def test_fill_empty_dict_entries():
+	assert False
+
+def test_flatten_dict():
+	expected = {
+		'a__subA': 'hello', 
+		'a__myarray__0': 'Hi',
+		'a__myarray__1': 'dear',
+		'b': 12,
+		'49__hello': 'world'}
+	
+	inputted = {
+		"a": {
+			"subA": "hello",
+			"myarray": [
+				"Hi",
+				"dear"
+			]
+		},
+		"b": 12,
+		"49": {"hello": "world"}}
+	result = script.flatten_json(inputted, "__")
+	assert expected == result
+	
+	## Check that it behaves well for arrays
+	expected = ["a", "b": {}]
+	inputted = {
+		"0": "a"
+		"1----b": ""
+	}
+	result = script.flatten_json(inputted, "----")
+	assert expected == result
+	
+	pass
+
+
 def test_valuesForTrue():
 	array = list(range(-1, 10))
 	arg = lambda x, i: i % 2 == 0  # even INDEXES

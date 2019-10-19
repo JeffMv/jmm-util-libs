@@ -434,23 +434,45 @@ def fill_empty_dict_entries(adict, *other_dicts):
 def flatten_json(collection, delim):
     return (flatten_dict(collection, delim))
 
-def flatten_dict(collection, delim):
+def flatten_dict(collection, delim, custom_key_mgr=None):
     """Flattens a dictionary by recursively appending the paths to the end nodes.
     :param collection: 
     :param str delim: the delimiter to join the paths with
+    :param func custom_key_mgr: A function that converts *ALL* dict keys to
+                an str type equivalent. Default is `str()`.
+                It's main use is to convert  non-JSON compatible Python dict like
+                `{"1": "string key", 1: "int key"}`.
     :source: https://stackoverflow.com/a/28246154/4418092
+    
+    :note: Python allows similar keys to be defined inside `dict`s without complaining
+            but JSON does not. Hence, the dict {"1": "string key", 1: "int key"} is valid
+            in Python but not in JSON.
+            Moreover, due to the way the dict is flattened, such cases could override values.
+            You should then provide a function to specify how to handle custom types of keys.
+            The order of parsing is not given.
+    
+    >>> dictionary = {"a": {"subA": "hello", "myarray": ["Hi", "dear"]}, "b": 12, 49: {"hello": "world"}}
+    >>> flatten_dict(dictionary, "__")
+    {
+        'a__subA': 'hello', 
+        'a__myarray__0': 'Hi',
+        'a__myarray__1': 'dear',
+        'b': 12,
+        '49__hello': 'world'
+    }
     """
+    custom_key_mgr = lambda value: str(value)
     val = {}
     if isinstance(collection, dict):
         for i in collection.keys():
             if isinstance( collection[i], dict ):
                 subvalues = flatten_dict( collection[i], delim )
                 for j in subvalues.keys():
-                    val[ i + delim + j ] = subvalues[j]
+                    val[ i + delim + custom_key_mgr(j) ] = subvalues[j]
             elif isinstance(collection[i], list):
                 subvalues = flatten_dict( collection[i], delim )
                 for j in subvalues.keys():
-                    val[ i + delim + j ] = subvalues[j]
+                    val[ i + delim + custom_key_mgr(j) ] = subvalues[j]
                 
                 #for k in range(len(collection[i])):
                 #    val[ i + delim + str(k) ] = flatten_dict(collection[i], delim)
@@ -458,8 +480,17 @@ def flatten_dict(collection, delim):
                 val[i] = collection[i]
     elif isinstance(collection, list):
         val = flatten_dict({str(i): flatten_dict(elmt, delim) for i, elmt in enumerate(collection)}, delim)
+        print("original collection : {}\n \t flattened: {}".format(collection, val))
         pass
-    # else:  # scalars and custom types are already handled above
+    else:
+        ## Most of scalars and custom types are already handled above when the
+        ## *original* call is given a collection. The recursion only takes
+        ## the other routes.
+        ##
+        ## Now this is when the *original* call is like flatten...(42)
+        ## or at when the end of a branch is reached.
+        val = collection
+        pass
 
     return val
 
