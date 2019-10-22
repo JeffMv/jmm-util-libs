@@ -10,6 +10,8 @@ The module was first developped with MacOS in mind.
 
 import os
 import platform
+import shutil
+
 
 ############## Systems and OS #################
 
@@ -97,3 +99,25 @@ def get_os_indentification_info():
 # tmp = subprocess.run(["pmset", "-g", "batt"], stdout=subprocess.PIPE) if is_macos() else None
 # tmp.stdout.decode() if tmp is not None else None
 
+
+############## Filesystem : OS-specific #################
+
+
+def get_volumes_with_free_space(lower_bound, upper_bound=None):
+    """Returns a list of mounted disks that have the specified amount of free space.
+    :param lower_bound: the minimum number of free bytes you expect.
+    :param upper_bound: the maximum number of free bytes you expect.
+    :note: Only available on systems where mounted volumes are in /Volumes
+    """
+    root, disks, _ = next(os.walk("/Volumes"))
+    drives = []
+    disk_spaces = []
+    for hd in disks:
+        disk_path = os.path.join(root, hd)
+        free_bytes = shutil.disk_usage(disk_path).free
+        satisfies_lower = (lower_bound is None) or (lower_bound <= free_bytes)
+        satisfies_upper = (upper_bound is None) or (free_bytes <= upper_bound)
+        if satisfies_lower and satisfies_upper:
+            drives.append(disk_path)
+            disk_spaces.append(free_bytes)
+    return drives, disk_spaces
