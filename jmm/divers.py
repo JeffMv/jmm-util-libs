@@ -81,6 +81,12 @@ def stripExtra(text, pattern, keep=1):
 
 ################### Files, folders and encoding ####################
 
+def ls(path="."):
+    """
+    Alias for next(os.walk(path))
+    """
+    res = next(os.walk(path))
+    return res
 
 def pickle_dumps(pickleShelf, **kwargs):
     """
@@ -480,7 +486,6 @@ def flatten_dict(collection, delim, custom_key_mgr=None):
                 val[i] = collection[i]
     elif isinstance(collection, list):
         val = flatten_dict({str(i): flatten_dict(elmt, delim) for i, elmt in enumerate(collection)}, delim)
-        print("original collection : {}\n \t flattened: {}".format(collection, val))
         pass
     else:
         ## Most of scalars and custom types are already handled above when the
@@ -491,9 +496,7 @@ def flatten_dict(collection, delim, custom_key_mgr=None):
         ## or at when the end of a branch is reached.
         val = collection
         pass
-
     return val
-
 
 
 ################### Sorting ####################
