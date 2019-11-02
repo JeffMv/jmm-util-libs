@@ -31,7 +31,8 @@ Notes on "*(semantic) versioning*" : https://semver.org
 Stable releases are published in the `releases` branch. So to install the latest version, type:
 
 ```bash
-# will install the latest version of branch `releases`
+# will install the latest version of branch `releases`.
+# Same principle for the master branch
 # (the -U option allows you to update the package)
 pip install -U git+https://github.com/JeffMv/jmm-util-libs.git@releases
 ```
