@@ -41,9 +41,9 @@ pip install -U git+https://github.com/JeffMv/jmm-util-libs.git@releases
 **Installing a specific version**
 
 ```bash
-# To install a specific version, for instance version with tag v0.1.2.9.0 just type
+# To install a specific version, for instance version with tag v0.1.2.10.2 just type
 # (add the -U option when you want to update, like "pip install -U ...")
-pip install git+https://github.com/JeffMv/jmm-util-libs.git@v0.1.2.9.0
+pip install -U git+https://github.com/JeffMv/jmm-util-libs.git@v0.1.2.10.2
 ```
 
 
@@ -53,22 +53,18 @@ pip install git+https://github.com/JeffMv/jmm-util-libs.git@v0.1.2.9.0
 ```bash
 # Add this in the requirements.txt file
 # To install version v0.1.2.9.0 with the `parsing` extra
--e git+https://github.com/JeffMv/jmm-util-libs.git@v0.1.2.9.0 [parsing]
+-e git+https://github.com/JeffMv/jmm-util-libs.git@v0.1.2.10.2 [parsing]
 ```
 
 
 
-
-
-General info: In order to install a specific version from a git tag:
+**General info**: In order to install a specific version from a git tag:
 
 ```bash
 pip install -e "git://github.com/{ username }/{ reponame }.git@{ tag name }#egg={ desired egg name }"
 
 # (source: https://coderwall.com/p/-wbo5q/pip-install-a-specific-github-repo-tag-or-branch)
 ```
-
-
 
 
 
