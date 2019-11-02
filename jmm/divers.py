@@ -655,7 +655,7 @@ def last_n_path_components(filepath, n, sep=None, trail=''):
     # It would have wrong meaning if ".."
     #  
     trail = (trail + sep) if len(trail) > 0 else trail
-    res = (trail + ) + os.path.join(*parts)
+    res = trail + os.path.join(*parts)
     return res
     
 
