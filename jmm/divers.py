@@ -642,8 +642,25 @@ def sortedEffectif(eff, nis=None, reverse=False, returnSplitted=False):
 
 ################### Secure filewrite (not interrupted with keyboard interrupt) ####################
 
+def last_n_path_components(filepath, n, sep=None, trail=''):
+    """
+    """
+    sep = os.path.sep if sep is None else sep
+    parts = filepath.split(sep)[-n:]
+    ## Idea for improving. If a trail is provided, then join
+    ## a '/' with the trail. This reflexion comes from:
+    # "..." -> ".../last/3/components"
+    # but 
+    # "" -> last/3/components
+    # It would have wrong meaning if ".."
+    #  
+    trail = (trail + sep) if len(trail) > 0 else trail
+    res = (trail + ) + os.path.join(*parts)
+    return res
+    
 
-def _writeToFilepath(content, filepath, binary=None, writeMode=None):
+
+def _writeToFilepath(content, filepath, makeParents, binary=None, writeMode=None):
     """Helper function to write into a path
     :param content: the content you want to write to file
     :param writeMode: the write mode as you would provide to the open() function ("b" for binary, "a"
@@ -656,13 +673,16 @@ def _writeToFilepath(content, filepath, binary=None, writeMode=None):
     
     content = content if binary or isinstance(content, str) else str(content)
 
-    parent = os.path.dirname(filepath)
-    os.makedirs(parent, exist_ok=True) # avoid getting a FileNotFoundError if the path has the form "foo/bar"
+    # avoid getting a FileNotFoundError if the path has the form "foo/bar"
+    # but no error if no parent directory
+    if makeParents and len(os.path.dirname(filepath)) > 0:
+        os.makedirs(os.path.dirname(filepath), exist_ok=True)
+    
     with open(filepath, writeMode) as of:
         of.write(content)
 
 
-def writeFileWithoutInterruption(content, filepath, binaryWrite=None, writeMode=None):
+def writeFileWithoutInterruption(content, filepath, binaryWrite=None, writeMode=None, makeParents=True):
     """Writes a file without being affected by the user's Keyboard interruption (Ctrl+C / Cmd+C).
     This way, the file should be fully written before the program can finally exit as requested by the
     user.
@@ -673,7 +693,7 @@ def writeFileWithoutInterruption(content, filepath, binaryWrite=None, writeMode=
             ("b" for binary, "a" for appending textual content, or "w" to replace textual content)
     """
     try:
-        thr = Thread(target=_writeToFilepath, args=(content, filepath, binaryWrite, writeMode))
+        thr = Thread(target=_writeToFilepath, args=(content, filepath, makeParents, binaryWrite, writeMode))
         thr.start()
         thr.join()
     except KeyboardInterrupt as err:
