@@ -276,22 +276,32 @@ def datetimeToDate(d):
 
 ################### Stats ####################
 
-def frequences(arr, returnSplitted=True, hashAsString=False, U=None, frequenciesOverUniverse=None):
+def frequency(data, probabilities=False, sort=False, reverse=False):
+    """Returns the frequency distribution of elements.
+    This is a convenience method for effectif()'s most common use case, without all the more complicated parameters.
+    :param data: A collection of elements you want to count.
+    :param bool probabilities: Whether you want the result frequencies to sum up to 1. Default: False
+    """
+    xis, nis = effectif(data, returnSplitted=True, frequencies=probabilities, sort=sort, reverse=reverse)
+    return xis, nis
+
+
+def frequences(data, returnSplitted=True, hashAsString=False, universe=None, frequenciesOverUniverse=None):
     """
     """
-    if U is None:
-        return effectif(arr, returnSplitted, hashAsString, True)
+    if universe is None:
+        return effectif(data, returnSplitted, hashAsString, True)
     else:
-        return effectifU(arr, U, returnSplitted, hashAsString, True, frequenciesOverUniverse)
+        return effectifU(data, universe, returnSplitted, hashAsString, True, frequenciesOverUniverse)
     
 
-def effectif(arr, returnSplitted=False, hashAsString=False, frequencies=False, inputConverter=None, sort=False, reverse=False):
+def effectif(data, returnSplitted=True, hashAsString=False, frequencies=False, inputConverter=None, sort=False, reverse=False):
     """calcule l'effectif
-    :param list arr: une liste
-    :param bool hashAsString: whether we should convert the values in 'arr' to
+    :param list data: une liste
+    :param bool hashAsString: whether we should convert the values in 'data' to
                 string before comparing them
     :param function inputConverter: a callable function that is used to convert
-                the values within arr into the class you want the values to be
+                the values within data into the class you want the values to be
                 compared as. When not provided, the identity function is used.
                 If used with parameter 'hashAsString', the hashed value will be
                 the one returned by this function.
@@ -300,7 +310,7 @@ def effectif(arr, returnSplitted=False, hashAsString=False, frequencies=False, i
     """
     inputConverter = (lambda x: x) if inputConverter is None else inputConverter
     effs = {}
-    for val in arr:
+    for val in data:
         val = inputConverter(val)
         key = str(val) if hashAsString else val
         try:
@@ -323,25 +333,33 @@ def effectif(arr, returnSplitted=False, hashAsString=False, frequencies=False, i
     return effs
 
 
-def effectif_u(arr, U=None, returnSplitted=False, hashAsString=False, frequencies=False, frequenciesOverUniverse=True, inputConverter=None):
+def effectif_u(data, universe=None, returnSplitted=True, hashAsString=False, frequencies=False, frequenciesOverUniverse=False, inputConverter=None):
     """calcule l'effectif
-    :param arr: une liste
-    :param U: (univers) liste des valeurs possibles
+    :param data: une liste
+    :param universe: (univers) liste des valeurs possibles
+    :param bool frequenciesOverUniverse: When you set frequencies=True and
+                    provide a universe parameter that filters out some values
+                    of the data, you can pass in True in order to have the
+                    frequencies sum up to 1. Otherwise (False), the f_i values
+                    will use the total number of elements in `data` for the
+                    total, making the probabilities sum up to < 1.
+
     """
     # if hashAsString:
     #     raise Exception("unsupported")
     
     inputConverter = (lambda x: x) if inputConverter is None else inputConverter
     
-    U = U if not (U is None) else Octave.unique(arr)
-    U = [inputConverter(v) for v in U]
+    data = list(data)
+    universe = universe if not (universe is None) else set(data)
+    universe = [inputConverter(v) for v in universe]
     
     effs = {}
-    for u in U:
+    for u in universe:
         u = str(u) if hashAsString else u
         effs[u] = 0
     
-    for val in arr:
+    for val in data:
         val = inputConverter(val)
         val = str(val) if hashAsString else val
         try:
@@ -350,7 +368,10 @@ def effectif_u(arr, U=None, returnSplitted=False, hashAsString=False, frequencie
             pass  # do not count values that are not in the given universe
     
     if frequencies:
-        tot = sum(effs.values()) if frequenciesOverUniverse else len(arr)
+        # frequenciesOverUniverse: True => make the effs[i] sum up to 1
+        # regardless of whether the universe parameters filters out some values
+        tot = sum(effs.values()) if frequenciesOverUniverse else len(data)
+
         for key in effs:
             effs[key] = effs[key]/tot
     
@@ -555,27 +576,47 @@ def sortBasedOn(base, *toSort, reverse=False):
     return res
 
 
-def getPermutation(A, to):
+def getPermutation(initial, target):
+    """Returns a permutation that can transform the initial state into the target state.
+    :param list initial: the list representing the initial state you would want to reorganize
+            (or an ordered collection with very similar API)
+    :param list target: the list that the permutation should reorder the initial state into.
+    :return: list
+            A permutation that will yield the target if used to reorder the initial state.
+            i.e.: target == [initial[index] for index in (getPermutation(initial, target))]
+
+    >>> words = ["yummy", "favorite", "My", "food", "!", "is"]
+    >>> sentence = ["My", "favorite", "food", "is", "yummy", "!"]
+    >>> sigma = getPermutation(words, sentence)
+    [2, 1, 3, 5, 1, 4]
+    >>> applyPermutation(words, sigma)
+    ["My", "favorite", "food", "is", "yummy", "!"]
     """
-    uniqueIndexes: True/False: True
-    """
-    arr = A
-    lastIndexSeen = dict( [(el,-1) for el in A] )
+    arr = initial
+    lastIndexSeen = dict( [(el,-1) for el in initial] )
     p = []
-    for i,el in enumerate(to):
+    for i,el in enumerate(target):
         fromIndex = lastIndexSeen[el]+1
-        theIndex = fromIndex + A[fromIndex:].index(el) # [0,1,2,3,0,1,2,3,4]
+        theIndex = fromIndex + initial[fromIndex:].index(el) # [0,1,2,3,0,1,2,3,4]
         lastIndexSeen[el] = theIndex
         p.append(theIndex)
     return p
 
-def applyPermutation(arr, perm):
+def applyPermutation(elements, perm):
+    """Returns a reordered list based on the permutation.
+    :param list elements: the elements you want to reorder
+
+    >>> words = ["yummy", "favorite", "My", "food", "!", "is"]
+    >>> sigma = [2, 1, 3, 5, 1, 4]
+    >>> applyPermutation(words, sigma)
+    ["My", "favorite", "food", "is", "yummy", "!"]
+    """
     dest = []
     for index in perm:
-        dest.append( arr[index] )
+        dest.append( elements[index] )
     return dest
 
-def sortedEffectif(eff, nis=None, reverse=False, returnSplitted=False):
+def sortedEffectif(eff, nis=None, reverse=False, returnSplitted=True):
     """
     :param nis:
     """
@@ -614,33 +655,9 @@ def sortedEffectif(eff, nis=None, reverse=False, returnSplitted=False):
     res = [(k, c) for k,c in zip(sortedKeys, sortedElmts)]
     return res
 
-### Exemple d'utilisation des permutations
-# brands = [art['brand'] for art in _targets]
-# brandEffs = effectif(brands)
-# brandEffs = [(key, brandEffs[key]) for key in brandEffs]
-# _nbArts  = [pair[1] for pair in brandEffs]
-# _marques = [pair[0] for pair in brandEffs]
-# _sortedNbArts = sorted(_nbArts)
-# _sortedNbArts.reverse()
-# _perm = getPermutation(_nbArts, _sortedNbArts, uniqueIndexes=True)
-# sortedBrands = applyPermutation(brandEffs, _perm)
-# print(len(_targets))
-# sortedBrands[:kNTopShortSellingBrands]
-### >>>> outputs:
-# [('HERMÈS', 1198),
-#  ('CHANEL', 334),
-#  ('LOUIS VUITTON', 209),
-#  ('GUCCI', 174),
-#  ('CÉLINE', 131),
-#  ('SAINT LAURENT', 110),
-#  ('CHLOÉ', 108),
-#  ('ZADIG & VOLTAIRE', 68),
-#  ...
-#  ('ZARA', 41) ]
-
-
 
 ################### Secure filewrite (not interrupted with keyboard interrupt) ####################
+
 
 def last_n_path_components(filepath, n, sep=None, trail=''):
     """

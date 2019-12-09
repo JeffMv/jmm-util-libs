@@ -4,7 +4,7 @@
 """
 
 __author__ = "Jeffrey Mvutu Mabilama (jeffrey.mvutu@gmail.com)"
-__version__ = "0.1.2.10.3"
+__version__ = "0.1.2.11.0"
 __copyright__ = "Copyright (c) 2017-2019 Jeffrey Mvutu Mabilama"
 __license__ = "All rights reserved"
 

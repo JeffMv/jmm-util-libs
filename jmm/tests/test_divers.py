@@ -340,9 +340,16 @@ def test_flatten_dict():
 	assert expected == result
 	
 	## Check that it behaves well for arrays
-	expected = ["a", "b": {}]
-	inputted = {
-		"0": "a"
+	# expected = {"a":{}, "b": {}}
+	# expected = ["a", ""]
+	# inputted = {
+	# 	"0": "a",
+	# 	"1----b": ""
+	# }
+
+	inputted = ["a", {"b": ""}]
+	expected = {
+		"0": "a",
 		"1----b": ""
 	}
 	result = script.flatten_json(inputted, "----")
