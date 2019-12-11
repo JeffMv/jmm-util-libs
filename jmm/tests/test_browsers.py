@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-import jmm_utils.jmm.divers as helper_divers
+import jmm.divers as helper_divers
 
-import jmm_utils.jmm.browsers as script
+import jmm.browsers as script
 # import jmm.browsers as script  # this would use the installed version of the package for testing instead of the development one.
 
 

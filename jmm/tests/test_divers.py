@@ -7,7 +7,7 @@ import datetime
 
 import pytest
 
-import jmm_utils.jmm.divers as script
+import jmm.divers as script
 
 
 # def test_http_return(tmpdir, monkeypatch):

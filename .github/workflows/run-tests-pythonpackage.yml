@@ -33,6 +33,4 @@ jobs:
     - name: Test with pytest
       run: |
         pip install pytest
-        pytest
-        # actually, no need to navigate to the subfolder hmm...
-        # cd jmm && pytest -v tests 
+        cd jmm && pytest -v tests 

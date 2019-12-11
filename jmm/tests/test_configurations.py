@@ -14,7 +14,7 @@ import datetime
 
 import pytest
 
-import jmm_utils.jmm.configurations as script
+import jmm.configurations as script
 # import jmm.configurations as script  # this would use the installed version of the package for testing instead of the development one.
 
 ## Monkeypatching with pytest
