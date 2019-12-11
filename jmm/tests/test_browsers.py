@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import jmm_utils.jmm.divers as helper_divers
+
 import jmm_utils.jmm.browsers as script
 # import jmm.browsers as script  # this would use the installed version of the package for testing instead of the development one.
 
@@ -35,7 +37,7 @@ class TestSeleniumHelper(object):
             content = f.read()
         content = content.decode(encoding=encoding) if encoding else content
         if asSoup:
-            content = m.soupify(content, False)
+            content = helper_divers.soupify(content, False)
         return content
     
     

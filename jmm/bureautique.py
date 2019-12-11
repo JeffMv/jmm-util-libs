@@ -26,7 +26,7 @@ def csv_from_excel(excelFilepath, destCsvFilepaths, sheetPages):
         your_csv_file = open(csvFpath, 'wb')
         wr = csv.writer(your_csv_file, quoting=csv.QUOTE_ALL)
 
-        for rownum in xrange(sh.nrows):
+        for rownum in range(sh.nrows):
             wr.writerow(sh.row_values(rownum))
 
         your_csv_file.close()

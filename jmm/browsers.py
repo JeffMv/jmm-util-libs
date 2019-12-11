@@ -285,7 +285,7 @@ class SeleniumHelper(object):
         
         # See https://stackoverflow.com/q/3655549/4418092
         xpath_selector = """//%s[text()[contains(., '%s')]]""" % (tag_name, text)
-        matches = driver.find_elements_by_xpath(xpath_selector)
+        matches = self.driver.find_elements_by_xpath(xpath_selector)
         return matches
     
     def getElementContainingText(self, *args, **kwargs):
