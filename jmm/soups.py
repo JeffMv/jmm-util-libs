@@ -3,12 +3,12 @@
 """
 """
 
-from .divers import *
-# from .divers import (getPermutation, applyPermutation, effectif)
+import statistics
 
 from bs4 import BeautifulSoup
 
-import statistics
+from .divers import *
+# from .divers import (getPermutation, applyPermutation, effectif)
 
 
 ################### Soupification ####################
