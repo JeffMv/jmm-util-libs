@@ -45,8 +45,9 @@ def padZerosToNumber(n, nZeros):
     :warning: Warning, the function does not behave the same with floating points, depending on the version of Python
     """
     version = sys.version[:3]
-    if version >= "3.6":
-        return f'{n:0{nZeros}}'
+    if version >= "3.0":
+        # return f'{n:0{nZeros}}'  # since Python 3.6
+        return '{:0{}}'.format(n, nZeros)
     # elif "3.0" <= version and version <= "3.5":
     #     return '{0:0dd}'.format(nZeros, n)
     elif version <= "2.9":
