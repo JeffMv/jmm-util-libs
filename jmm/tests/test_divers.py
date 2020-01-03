@@ -381,8 +381,9 @@ def test_valuesForTrue():
 def test_sortBasedOn():
 	array = ["Salamander", ".1nd", 314, -134, [], 3993]
 	inputted = [4, 5, 0, 10000, -999, -10]
+	ordered_input = list(sorted(inputted))
 	expected = [[], 3993, 314, "Salamander", ".1nd", -134]
-	assert expected == script.sortBasedOn(inputted, array)
+	assert [ordered_input, expected] == script.sortBasedOn(inputted, array)
 
 def test_getPermutation():
 	inputted = [4, 5, 0, 10000, -999, -10]

@@ -20,7 +20,7 @@ URL = 'https://github.com/JeffMv/jmm-util-libs'
 EMAIL = 'jeffrey.mvutu@gmail.com'
 AUTHOR = 'Jeffrey Mvutu Mabilama'
 REQUIRES_PYTHON = '>=3.0.0'
-VERSION = "0.1.2.11.0"
+VERSION = "0.1.3.0.0"
 
 # What packages are required for this module to be executed?
 REQUIRED = [

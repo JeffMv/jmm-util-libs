@@ -561,18 +561,15 @@ def sortBasedOn(base, *toSort, reverse=False):
     """
     """
     base = list(base)
-    perm = getPermutation(base, list(sorted(base)))
+    sortedBase = list(sorted(base))
+    perm = getPermutation(base, sortedBase)
     
-    res = []
+    res = [sortedBase]
     for arr in toSort:
         tmp = applyPermutation(arr, perm)
         if reverse:
             tmp = list(reversed(tmp))
         res.append(tmp)
-    
-    ## 
-    if len(toSort) == 1:
-        res = res[0]
     
     return res
 
