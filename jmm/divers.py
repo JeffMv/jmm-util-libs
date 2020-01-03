@@ -282,6 +282,8 @@ def frequency(data, probabilities=False, sort=False, reverse=False):
     This is a convenience method for effectif()'s most common use case, without all the more complicated parameters.
     :param data: A collection of elements you want to count.
     :param bool probabilities: Whether you want the result frequencies to sum up to 1. Default: False
+    :param bool sort: Whether you want the results to be sorted by the value of the frequency value. Default: False
+    :param bool reverse: Reverse the sort order. If sort is not True, the behaviour is undefined. Default: False.
     """
     xis, nis = effectif(data, returnSplitted=True, frequencies=probabilities, sort=sort, reverse=reverse)
     return xis, nis
@@ -298,16 +300,19 @@ def frequences(data, returnSplitted=True, hashAsString=False, universe=None, fre
 
 def effectif(data, returnSplitted=True, hashAsString=False, frequencies=False, inputConverter=None, sort=False, reverse=False):
     """calcule l'effectif
-    :param list data: une liste
+    :param list data: the sample data
+    :param list returnSplitted: if True, the return value will be a tuple
+                (xis, nis), where xis are the values from the universe and nis
+                are the frequencies.
     :param bool hashAsString: whether we should convert the values in 'data' to
-                string before comparing them
+                string before comparing them.
     :param function inputConverter: a callable function that is used to convert
                 the values within data into the class you want the values to be
                 compared as. When not provided, the identity function is used.
                 If used with parameter 'hashAsString', the hashed value will be
                 the one returned by this function.
-    :param bool sort: sort the result (only if returnSplitted). Shorthand for `sortBasedOn`
-    :param bool reverse: reverse the order (only if sort and returnSplitted). Shorthand for `sortBasedOn`
+    :param bool sort: sort the result the  (only if returnSplitted).
+    :param bool reverse: reverse the order (only if sort and returnSplitted).
     """
     inputConverter = (lambda x: x) if inputConverter is None else inputConverter
     effs = {}
