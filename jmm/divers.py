@@ -280,10 +280,11 @@ def datetimeToDate(d):
 def frequency(data, probabilities=False, sort=False, reverse=False):
     """Returns the frequency distribution of elements.
     This is a convenience method for effectif()'s most common use case, without all the more complicated parameters.
-    :param data: A collection of elements you want to count.
+    :param iterable data: A collection of elements you want to count.
     :param bool probabilities: Whether you want the result frequencies to sum up to 1. Default: False
     :param bool sort: Whether you want the results to be sorted by the value of the frequency value. Default: False
     :param bool reverse: Reverse the sort order. If sort is not True, the behaviour is undefined. Default: False.
+    :return: list
     """
     xis, nis = effectif(data, returnSplitted=True, frequencies=probabilities, sort=sort, reverse=reverse)
     return xis, nis
@@ -900,12 +901,13 @@ strip_extra = stripExtra
 
 pickleDumps = pickle_dumps
 pickleLoads = pickle_loads
-insert_in_file = insertInFile
 base64Encode = base64_encode
 base64Decode = base64_decode
 urlEncode = url_encode
 urlDecode = url_decode
 replaceFileExtension = replace_file_extension
+
+insert_in_file = insertInFile
 
 makeRandomString = make_random_string
 
