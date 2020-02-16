@@ -126,20 +126,10 @@ def test_append_to_basename():
 
 def test_insertInFile():
     ### TEST IS NOT DONE
-    # how to proceed with testing with line returns. Python
-    example_content = """URL Encoding (Percent Encoding)\nHello world"""
+    # how to proceed with testing. And what about with line returns (Unix/Dos)
+    # example_content = """URL Encoding (Percent Encoding)\nHello world"""
     script.insertInFile
     assert False
-    
-    # teardown
-    try:
-        os.remove(filepath)
-    except FileNotFoundError:
-        pass
-    try:
-        os.rmdir(dirname)
-    except (OSError, FileNotFoundError):
-        pass
 
 
 ################### Dates and times ####################
