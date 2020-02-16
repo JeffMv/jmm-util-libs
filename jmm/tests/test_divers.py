@@ -220,6 +220,60 @@ def test_datetime_to_date():
 ###
 
 
+def test_frequency():
+    sample = [0, 0, 1,1,1,1,1 , 15, 30, 30, 30, -4, 15,15,15]
+    expected_keys = [-4, 0, 1, 15, 30]
+    expected_values = [1, 2, 5, 4, 3]
+    expected_probabilities = [1/15, 2/15, 5/15, 4/15, 3/15]
+    
+    ## NOTE: be cautious when adding complex code in unit tests, but i'm sure
+    ##      that this does what we want without error
+    ##      i.e. takes 2 collections and turn them into a dict with keys
+    ##      and the second values
+    to_dict = lambda keys, values: {key: val for key, val in zip(keys, values)}
+    
+    expected_unsorted = to_dict(expected_keys, expected_values)
+    
+    ### testing UNsorted result:
+    ## since (theoritically) the order of the output collections should NOT
+    ## be expected to be consistent (since that specification is not part of
+    ## the API) we make additional checks to ensure we do NOT just assume
+    ## a consistent order.
+    
+    # using an unordered collection to make the code easier to read and
+    # solve the problem specified above
+    xis, nis = script.frequency(sample)
+    assert to_dict(xis, nis) == expected_unsorted
+    xis, nis = script.frequency(sample, probabilities=False)
+    assert to_dict(xis, nis) == expected_unsorted
+    
+    
+    ## testing probabilities (float comparison implied)
+    xis, pis = script.frequency(sample, probabilities=True)
+    # NOTE: the following two asserts compare separately keys and values
+    #       and thus lack to ensure that each
+    assert set(xis) == set(expected_keys)
+    assert all(map(lambda tup: pytest.approx(tup[0]) == tup[1], zip(pis, expected_probabilities)))
+    
+    
+    computed = to_dict(xis, pis)
+    assert set(computed.keys()) == set(expected_unsorted.keys())
+    for key, value in computed:
+        assert pytest.approx(value) == expected_unsorted[key]
+        pass
+    
+    
+    ### testing SORTED result: 
+    sorted_xis, sorted_nis = script.frequency(sample, probabilities=False, sort=True)
+    assert sorted_xis == expected_keys
+    assert sorted_nis == expected_values
+    
+    sorted_xis, sorted_pis = script.frequency(sample, probabilities=True, sort=True)
+    assert sorted_xis == expected_keys
+    assert len(sorted_xis) == len(sorted_pis)
+    assert all(map((lambda i, _: pytest.approx(sorted_pis[i]) == expected_probabilities[i]), enumerate(sorted_pis)))
+
+
 # def test_effectif():
 #     sample = [0, 0, 1,1,1,1,1 , 15, 30, 30, 30, -4, 15,15,15]
 #     expected_keys = [-4, 0, 1, 15, 30]
