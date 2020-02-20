@@ -3,9 +3,9 @@
 """
 """
 
-import os, sys
+import csv
+import xlrd
 
-import csv, xlrd
 
 ################### Utils ####################
 

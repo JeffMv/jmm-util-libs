@@ -283,6 +283,8 @@ def frequency(data, probabilities=False, sort=False, reverse=False):
     :param iterable data: A collection of elements you want to count.
     :param bool probabilities: Whether you want the result frequencies to sum up to 1. Default: False
     :param bool sort: Whether you want the results to be sorted by the value of the frequency value. Default: False
+                    The order in which values with the same frequency are
+                    ordered is not specified and is an implementation detail atm.
     :param bool reverse: Reverse the sort order. If sort is not True, the behaviour is undefined. Default: False.
     :return: list
     """
@@ -334,7 +336,7 @@ def effectif(data, returnSplitted=True, hashAsString=False, frequencies=False, i
         xis = list(effs.keys())
         nis = list(effs.values())
         if sort:
-            xis, nis = sortBasedOn(nis, xis, nis, reverse=reverse)
+            nis, xis = sortBasedOn(nis, xis, reverse=reverse)
         return xis, nis
     
     return effs
@@ -564,7 +566,11 @@ def valuesForTrue(rule, values):
     # return res
 
 def sortBasedOn(base, *toSort, reverse=False):
-    """
+    """Sorts the inputs based on the permutation required to sort the first argument.
+    :param iterable base: the collection that serves as the base for the
+                    permutation of the other collections
+    :param list *toSort: a variable amount of lists to permute. (They will not be mutated.)
+    :param bool reverse: whether the base collection should be sorted in reverse order
     """
     base = list(base)
     sortedBase = list(sorted(base))

@@ -211,6 +211,17 @@ def test_datetime_to_date():
 
 ###
 
+def _helper_compare_dicts(d1, d2, func, default):
+    """
+    helper to compare values of a dictionary by simple call.
+    :param default: the value to use if a dict does not have a key the other has.
+    """
+    results = []
+    for key in (set(d1.keys()) | set(d2.keys())):
+        v1, v2 = d1.get(key, default), d2.get(key, default)
+        results.append(func(v1, v2))
+    return results
+
 
 def test_frequency():
     sample = [0, 0, 1,1,1,1,1 , 15, 30, 30, 30, -4, 15,15,15]
@@ -222,9 +233,13 @@ def test_frequency():
     ##      that this does what we want without error
     ##      i.e. takes 2 collections and turn them into a dict with keys
     ##      and the second values
-    to_dict = lambda keys, values: {key: val for key, val in zip(keys, values)}
+    # to_dict = lambda keys, values: (len(keys) == len(values)) and {key: val for key, val in zip(keys, values)}
+    def to_dict(keys, values):
+        assert (len(keys) == len(values)), "non-matching lengths"
+        return {key: val for key, val in zip(keys, values)}
     
     expected_unsorted = to_dict(expected_keys, expected_values)
+    expected_unsorted_probabilities = to_dict(expected_keys, expected_probabilities)
     
     ### testing UNsorted result:
     ## since (theoritically) the order of the output collections should NOT
@@ -245,25 +260,40 @@ def test_frequency():
     # NOTE: the following two asserts compare separately keys and values
     #       and thus lack to ensure that each
     assert set(xis) == set(expected_keys)
-    assert all(map(lambda tup: pytest.approx(tup[0]) == tup[1], zip(pis, expected_probabilities)))
-    
+    results = _helper_compare_dicts(to_dict(xis, nis), expected_unsorted, (lambda x,y: pytest.approx(x) == y), None)
+    # print(f"pis, expected_probabilities: \n{pis} \n{expected_probabilities}")
+    # results = [pytest.approx(pair[0], 1/15) == pair[1] for pair in zip(pis, expected_probabilities)]
+    assert all(results)
+    # assert all(list(map(lambda tup: pytest.approx(tup[0]) == tup[1], zip(pis, expected_probabilities))))
     
     computed = to_dict(xis, pis)
     assert set(computed.keys()) == set(expected_unsorted.keys())
-    for key, value in computed:
-        assert pytest.approx(value) == expected_unsorted[key]
+    for key in computed:
+        value = computed.get(key)
+        assert pytest.approx(value) == expected_unsorted_probabilities[key], f"comparison failed for key {key}"
         pass
     
     
-    ### testing SORTED result: 
+    ### testing with OPTION : SORT=True
+    # caution: the "sort" option sorts based on the number of elements in the collection.
+    # AND sort order beyond the number of elements is not specified.
+    # (for instance if
+    # both 1 and 15 are each found 3 times in the sample, the order in which 1 and 15
+    # will apear in sorted_xis is not specified).
+    # That order is now only deterministic/predictable due to implementation details.
+    expected_keys_ordered_by_value_count = [-4, 0, 30, 15, 1]
+    expected_values_ordered_by_value_count = [1, 2, 3, 4, 5]  # <- keys are sorted by these values
     sorted_xis, sorted_nis = script.frequency(sample, probabilities=False, sort=True)
-    assert sorted_xis == expected_keys
-    assert sorted_nis == expected_values
+    assert sorted_xis == expected_keys_ordered_by_value_count
+    assert sorted_nis == expected_values_ordered_by_value_count
     
+    expected_probabilities_ordered_by_value_count = [1/15, 2/15, 3/15, 4/15, 5/15]  # <- keys are sorted by these values
     sorted_xis, sorted_pis = script.frequency(sample, probabilities=True, sort=True)
-    assert sorted_xis == expected_keys
+    assert sorted_xis == expected_keys_ordered_by_value_count  
     assert len(sorted_xis) == len(sorted_pis)
-    assert all(map((lambda i, _: pytest.approx(sorted_pis[i]) == expected_probabilities[i]), enumerate(sorted_pis)))
+    for i, key in enumerate(sorted_xis):
+        expected = expected_probabilities_ordered_by_value_count[i]
+        assert (pytest.approx(sorted_pis[i]) == expected), f"key {key} do not have expected value"
 
 
 # def test_effectif():
@@ -426,6 +456,16 @@ def test_sortBasedOn():
     ordered_input = list(sorted(inputted))
     expected = [[], 3993, 314, "Salamander", ".1nd", -134]
     assert [ordered_input, expected] == script.sortBasedOn(inputted, array)
+    
+    array = ["Salamander", ".1nd", 314, -134, [], 3993]
+    inputted = [4, 5, 0, 10000, -999, -10]
+    second_input = ["delta", "espilon", "gamma", "zeta", "alpha", "beta"]
+    ordered_input = list(sorted(inputted))
+    expected = [[], 3993, 314, "Salamander", ".1nd", -134]
+    second_expected_output = ['alpha', 'beta', 'gamma', 'delta', 'espilon', 'zeta']
+    assert [ordered_input, expected, second_expected_output] == script.sortBasedOn(inputted, array, second_input)
+    
+    
 
 def test_getPermutation():
     inputted = [4, 5, 0, 10000, -999, -10]
