@@ -126,6 +126,7 @@ def test_append_to_basename():
         script.append_to_basename("path/..value", 'anything')
 
 
+@pytest.mark.skip(reason="YAGNI. And might be bothersome to test. What would be a *good* test and test design for this?")
 def test_insertInFile():
     ### TEST IS NOT DONE
     # how to proceed with testing. And what about with line returns (Unix/Dos)
@@ -315,14 +316,17 @@ def test_frequency():
 #     assert False
 
 
+@pytest.mark.skip(reason="no way of currently testing this")
 def test_frequences():
     script.frequences
     assert False
 
+@pytest.mark.skip(reason="not testing this because of YAGNI")
 def test_effectif_u():
     script.effectif_u
     assert False
 
+@pytest.mark.skip(reason="not testing this because of YAGNI. See tests for frequency()")
 def test_sortedEffectif():
     script.sortedEffectif
     assert False
@@ -386,9 +390,11 @@ def test_split_evenly_in_increasing_order():
     assert expected == script.split_evenly_in_increasing_order(array, groups)
 
 
+@pytest.mark.skip(reason="not testing this because of YAGNI")
 def test_fill_empty_dict_entries():
     script.fill_empty_dict_entries
     assert False
+
 
 def test_flatten_dict():
     expected = {
