@@ -183,6 +183,24 @@ def base64_encode(b):
     return base64.b64encode(b)
 
 
+def read_file(filepath, mode="r"):
+    """Convenience to read an entire file.
+    :param str mode: Default is "r"
+    """
+    with open(filepath, mode) as fh:
+        content = fh.read()
+    return content
+
+
+def write_file(content, filepath, mode="w"):
+    """Convenience to persist.
+    :param str mode: Default is "w"
+    """
+    with open(filepath, mode) as fh:
+        res = fh.write(content)
+    return res
+
+
 def insertInFile(s, file, index):
     """Inserts text in a file at the specified index.
     :note: it does *read the whole file* and inserts at the given position,

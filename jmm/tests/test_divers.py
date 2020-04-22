@@ -488,6 +488,17 @@ def test_applyPermutation():
     assert expected == script.applyPermutation(inputted, permutation)
 
 
+@pytest.mark.skip(reason="YAGNI. too simple convenience")
+def test_readFile():
+    script.readFile
+    assert False
+
+@pytest.mark.skip(reason="YAGNI. too simple convenience")
+def test_writeFile():
+    script.writeFile
+    assert False
+
+
 # def test_writeFileWithoutInterruption():
 #   script.writeFileWithoutInterruption
 #   assert False
