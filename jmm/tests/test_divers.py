@@ -4,6 +4,7 @@
 
 import os
 import datetime
+import json
 
 import pytest
 
@@ -414,8 +415,10 @@ def test_flatten_dict():
         },
         "b": 12,
         "49": {"hello": "world"}}
-    result = script.flatten_json(inputted, "__")
+    result = script.flatten_dict(inputted, "__")
     assert expected == result
+    result = script.flatten_json(json.dumps(inputted), "__")
+    assert json.dumps(expected) == result
     
     ## Check that it behaves well for arrays
     # expected = {"a":{}, "b": {}}
@@ -430,8 +433,10 @@ def test_flatten_dict():
         "0": "a",
         "1----b": ""
     }
-    result = script.flatten_json(inputted, "----")
+    result = script.flatten_dict(inputted, "----")
     assert expected == result
+    result = script.flatten_json(json.dumps(inputted), "----")
+    assert json.dumps(expected) == result
     
     pass
 

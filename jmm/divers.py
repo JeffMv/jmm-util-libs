@@ -5,6 +5,7 @@
 
 import os
 import sys
+import json
 import string
 import random
 import base64
@@ -202,7 +203,8 @@ def write_file(content, filepath, mode="w"):
 
 
 def insertInFile(s, file, index):
-    """Inserts text in a file at the specified index.
+    """[DEPRECATED]
+    Inserts text in a file at the specified index.
     :note: it does *read the whole file* and inserts at the given position,
             so be wary of really big files.
     :param str s: the string to insert
@@ -485,8 +487,13 @@ def fill_empty_dict_entries(adict, *other_dicts):
     return adict, empty_entries
 
 
-def flatten_json(collection, delim):
-    return (flatten_dict(collection, delim))
+def flatten_json(json_content, delim, indent=None, **kwargs):
+    """
+    Convenience for flatten_dict, but taking in and outputing a JSON as string.
+    :param **kwargs: params for json.dumps
+    """
+    return json.dumps(flatten_dict(json.loads(json_content), delim), indent=indent, **kwargs)
+
 
 def flatten_dict(collection, delim, custom_key_mgr=None):
     """Flattens a dictionary by recursively appending the paths to the end nodes.
@@ -495,7 +502,7 @@ def flatten_dict(collection, delim, custom_key_mgr=None):
     :param func custom_key_mgr: A function that converts *ALL* dict keys to
                 an str type equivalent. Default is `str()`.
                 It's main use is to convert  non-JSON compatible Python dict like
-                `{"1": "string key", 1: "int key"}`.
+                `{"1": "string key", 1: "int key", datetime.date.today(): "date"}`.
     :source: https://stackoverflow.com/a/28246154/4418092
     
     :note: Python allows similar keys to be defined inside `dict`s without complaining
@@ -931,6 +938,7 @@ urlEncode = url_encode
 urlDecode = url_decode
 replaceFileExtension = replace_file_extension
 
+# DEPRECATED
 insert_in_file = insertInFile
 
 makeRandomString = make_random_string
@@ -961,4 +969,6 @@ get_permutation = getPermutation
 sort_based_on = sortBasedOn
 sorted_effectif = sortedEffectif
 
+readFile= read_file
+writeFile= write_file
 write_file_without_interruption = writeFileWithoutInterruption
