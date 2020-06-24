@@ -108,6 +108,11 @@ def test_replace_file_extension():
     inputted = "/path/to.png/file.png"
     expected = "/path/to.png/file.JPG"
     assert expected == script.replace_file_extension(inputted, 'JPG')
+    
+    inputted = "/path/..valueanything"
+    expected = "/path/..valueanything.txt"
+    assert expected == script.replace_file_extension(inputted, 'txt')
+    
 
 def test_append_to_basename():
     inputted = "/path/to/basename.exe"
@@ -123,8 +128,8 @@ def test_append_to_basename():
     expected = ".alone-expected"
     assert expected == script.append_to_basename(inputted, '-expected')
     
-    with pytest.raises(ValueError):  # feel free to change the exception type
-        script.append_to_basename("path/..value", 'anything')
+    expected = "path/..valueanything"
+    assert expected == script.append_to_basename("path/..value", 'anything')
 
 
 @pytest.mark.skip(reason="YAGNI. And might be bothersome to test. What would be a *good* test and test design for this?")

@@ -503,7 +503,7 @@ def fill_empty_dict_entries(adict, *other_dicts):
 
 def flatten_json(json_content, delim, indent=None, **kwargs):
     """
-    Convenience for flatten_dict, but taking in and outputing a JSON as string.
+    Convenience for flatten_dict, but taking in and outputing a JSON string.
     :param **kwargs: params for json.dumps
     """
     return json.dumps(flatten_dict(json.loads(json_content), delim), indent=indent, **kwargs)
