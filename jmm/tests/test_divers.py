@@ -277,7 +277,7 @@ def test_frequency():
     assert set(computed.keys()) == set(expected_unsorted.keys())
     for key in computed:
         value = computed.get(key)
-        assert pytest.approx(value) == expected_unsorted_probabilities[key], f"comparison failed for key {key}"
+        assert pytest.approx(value) == expected_unsorted_probabilities[key], "comparison failed for key %s" % (key,)
         pass
     
     
@@ -300,7 +300,7 @@ def test_frequency():
     assert len(sorted_xis) == len(sorted_pis)
     for i, key in enumerate(sorted_xis):
         expected = expected_probabilities_ordered_by_value_count[i]
-        assert (pytest.approx(sorted_pis[i]) == expected), f"key {key} do not have expected value"
+        assert (pytest.approx(sorted_pis[i]) == expected), "key %s do not have expected value" % (key,)
 
 
 # def test_effectif():
