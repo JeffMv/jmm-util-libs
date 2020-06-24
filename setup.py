@@ -30,6 +30,7 @@ REQUIRED = [
 # What packages are optional?
 EXTRAS = {
     # 'fancy feature': ['django'],
+    'conversion': ['pandas'],
     'selenium': ['selenium'],
     'parsing': ['bs4', 'lxml'],
 }
