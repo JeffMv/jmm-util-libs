@@ -924,7 +924,7 @@ def random_string(length, secure=False, characters=None):
     if secure:
         s = ''.join( random.SystemRandom().choice(characters) for _ in range(N) )
     else:
-        s = ''.join(random.choices(characters, k=N))
+        s = ''.join([random.choice(characters) for _ in range(N)])
     return s
 
 def make_random_string(length, secure=False, characters=None):
