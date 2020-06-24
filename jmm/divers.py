@@ -110,14 +110,28 @@ def pickle_loads(pickleShelf, localsDict):
     return localsDict
 
 
-def replace_file_extension(path, extension):
+def replace_file_extension(filepath, extension):
     """replaces the file extension (and add one if there is no current extension).
     """
-    path = ".".join(path.split('.')[:-1] + [extension])
-    return path
+    base, ext = os.path.splitext(filepath)
+    ext = "." + extension
+    return base + ext
 
 
 def append_to_basename(path, name):
+    return append_before_file_extension(path, name)
+
+def append_before_file_extension(path, name):
+    """
+    
+    """
+    base, ext = os.path.splitext(path)
+    res = base + name + ext
+    # print(f"input: {path}\nbase: '{base}'\nname: '{name}'\next: '{ext}'\n-> {res}\n")
+    return res
+
+
+def __old__append_to_basename(path, name):
     path = path[:-1] if path.endswith(os.path.sep) else path
     directory = os.path.dirname(path)
     last_part = os.path.basename(path)
