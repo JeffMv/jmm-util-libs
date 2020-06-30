@@ -10,6 +10,7 @@ import string
 import random
 import base64
 import calendar
+import argparse
 
 # from collections import OrderedDict
 from functools import reduce
@@ -828,6 +829,24 @@ def writeFileWithoutInterruption(content, filepath, binaryWrite=None, writeMode=
 
 ################### Others ####################
 
+
+class ArgparseSmartFormatter(argparse.HelpFormatter):
+    """A formatter class to use with argparse parsers.
+    It allows you to choose which text you want to treat as raw strings
+    and thus allow things like new lines in epilog.
+    See this answer: https://stackoverflow.com/a/22157136
+    
+    Prepend the prefix "|R" (without quotes) to format the whole string
+    as a would the raw formatter.
+    """
+    def _split_lines(self, text, width):
+        ## this only gets called for arguments, not for the help message
+        if text.startswith('R|'):
+            return text[2:].splitlines()
+        # this is the RawTextHelpFormatter._split_lines
+        # return argparse.HelpFormatter._split_lines(self, text, width)
+        return super(ArgparseSmartFormatter, self)._split_lines(text, width)
+         
 
 def description_of_dict_architecture(collection, keys_threshold, levels=None):
     """
