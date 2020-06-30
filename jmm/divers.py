@@ -11,6 +11,8 @@ import random
 import base64
 import calendar
 
+from collections import OrderedDict
+from functools import reduce
 from datetime import date, datetime
 from threading import Thread
 from urllib.parse import (unquote, quote)
@@ -123,11 +125,9 @@ def append_to_basename(path, name):
 
 def append_before_file_extension(path, name):
     """
-    
     """
     base, ext = os.path.splitext(path)
     res = base + name + ext
-    # print(f"input: {path}\nbase: '{base}'\nname: '{name}'\next: '{ext}'\n-> {res}\n")
     return res
 
 
@@ -501,12 +501,22 @@ def fill_empty_dict_entries(adict, *other_dicts):
     return adict, empty_entries
 
 
-def flatten_json(json_content, delim, indent=None, **kwargs):
+def flatten_json(content, delim, indent=None, **kwargs):
     """
     Convenience for flatten_dict, but taking in and outputing a JSON string.
+    :param str content: string of a JSON file's content.
+    :param str delim: delimiter
+    :param int indent: indentation of outputed JSON
     :param **kwargs: params for json.dumps
     """
-    return json.dumps(flatten_dict(json.loads(json_content), delim), indent=indent, **kwargs)
+    json_content = content
+    if isinstance(content, (str)):
+        try:
+            json_content = json.loads(content)
+        except json.JSONDecodeError:
+            # means the input is already in Python format (not a JSON string)
+            pass
+    return json.dumps(flatten_dict(json_content, delim), indent=indent, **kwargs)
 
 
 def flatten_dict(collection, delim, custom_key_mgr=None):
@@ -571,14 +581,15 @@ def flatten_dict(collection, delim, custom_key_mgr=None):
 ################### Sorting ####################
 
 
-def valuesForTrue(rule, values):
+def filter_with_index(rule, values):
     """An helper generator to filter iterators. Unlike the filter function,
     it passes the index of the element in the iteration process.
-    :param rule: Rule that says whether or 
+    :param rule: Rule that says whether or not to keep a value.
             Either a list of booleans or a function taking (value, index) as arguments.
     :param values: iterator to filter
     :return: yields values that meet the rule
     """
+    ## To distinguish between a collection and a function
     iterator = iter(values)
     val = next(iterator)
     try:
@@ -587,22 +598,52 @@ def valuesForTrue(rule, values):
         filter_func = lambda x, i: rule(x, i)
     except:
         is_func = False
-        # this way, external modification won't affect the generator
+        # rule (possibly a mutable collection) won't affect the generator
         rule = rule.copy()
         filter_func = lambda x, i: rule[i]  # bool(rule[i])
     
-    # res = []
     shouldKeep = filter_func(val, 0)
     if shouldKeep:
         yield val
-        # res.append(val)
     
     for i, val in enumerate(iterator):
-        shouldKeep = filter_func(val, i + 1)  # the first value has was consummed
+        # the first value has was consummed
+        shouldKeep = filter_func(val, i + 1)
         if shouldKeep:
-            # res.append(val)
             yield val
-    # return res
+
+
+def valuesForTrue(rule, values):
+    yield from filter_with_index(rule, values)
+
+
+def assign_to_dict(adict, key, value, copy=False):
+    """Convenience function for assigning a key-value pair to a dictionary.
+    Useful in lambda functions
+    :param dict adict:
+    :param key:
+    :param value:
+    :return dict: returns the dictionary
+    """
+    adict = adict.copy() if copy else adict
+    adict[key] = value
+    return adict
+
+
+def group_by(collection, func):
+    """Groups values of a collection by the provided key
+    :param collection collection:
+    :param function func:
+    :return list: a list with values grouped by the function's key
+    
+    >>> group_by(["abc_def_hi","foo_12","099","abc_zoo", "abc_aaa"], lambda x: x.split("_")[0])
+    ["abc_def_hi", "abc_zoo", "abc_aaa","foo_12","099"]
+    """
+    keys_order_preserved = OrderedDict(reduce((lambda acc,val: assign_to_dict(acc, func(val), [])), collection, {}))
+    tmp = keys_order_preserved
+    _ = [tmp[func(value)].append(value) for value in collection]
+    return reduce((lambda acc, key: acc + tmp[key]), tmp.keys(), [])
+
 
 def sortBasedOn(base, *toSort, reverse=False):
     """Sorts the inputs based on the permutation required to sort the first argument.
@@ -710,6 +751,10 @@ def sortedEffectif(eff, nis=None, reverse=False, returnSplitted=True):
 
 def last_n_path_components(filepath, n, sep=None, trail=''):
     """
+    :param str filepath: filesystem path
+    :param int n: number of components to keep
+    :param str sep: separator for filepath
+    :param str trail: leading trail
     """
     sep = os.path.sep if sep is None else sep
     parts = filepath.split(sep)[-n:]
@@ -719,7 +764,7 @@ def last_n_path_components(filepath, n, sep=None, trail=''):
     # but 
     # "" -> last/3/components
     # It would have wrong meaning if ".."
-    #  
+    # 
     trail = (trail + sep) if len(trail) > 0 else trail
     res = trail + os.path.join(*parts)
     return res
@@ -788,7 +833,7 @@ def description_of_dict_architecture(collection, keys_threshold, levels=None):
     
     next_level = None if (levels is None) else levels - 1
     
-    ### I describe the first level and then call the function recursively
+    ### describe the first level and then call the function recursively
     
     def childs_have_similar_structure(collection):
         """Compares few child nodes to determine the pattern.
@@ -819,19 +864,12 @@ def description_of_dict_architecture(collection, keys_threshold, levels=None):
             result.update({"__stats__": "__keys-count__"})
             for i, value in enumerate(collection):
                 ### Display the type
-                # key = str(type(value)) if isinstance(value, dict) else value
                 if isinstance(value, dict):
                     key = str(type(value))
                 elif isinstance(value, list):
                     key = "%s :: %s" % (str(type(value)), (value[0] if len(value) > 0 else ""))
                 else:
                     key = value
-                
-                ## 
-                # if result.get(key) is not None:
-                #     result[key] = result[key] + 1
-                # else:
-                #     result[key] = 1
                 
                 ### Display the keys of the subchild and show stats about
                 ### the keys (how many times each subkey appears)
@@ -867,29 +905,24 @@ def description_of_dict_architecture(collection, keys_threshold, levels=None):
             if len(keys) > keys_threshold:
                 surplus = len(keys) - keys_threshold
                 keys_to_remove = sorted(keys[-surplus:])
-                # while 
-                # print("\n".join(sorted(keys_to_remove)))
                 for key in keys_to_remove.copy():
-                    # print("> removing '%s'" % (key))
                     del result[key]
                 
-                result["..."] = "..."  # add this key to signify the threshold has been reached
+                # add this key to signify the threshold has been reached
+                result["..."] = "..."
                 pass
                         
         elif isinstance(collection, list):
             result = [most_common_keys_of_children(collection)]
             if len(collection) > 0:
-                # tmp = collection[0]
                 tmp = description_of_dict_architecture(collection[0], keys_threshold, next_level)
                 result.append(tmp)
             pass
         
         else:
-            # result = str(type(collection)).split("'")[1]
             result = "%s :: %s" % (str(type(collection)), collection)
     
     else:
-        # result = str(type(collection)).split("'")[1]
         if isinstance(collection, dict) or isinstance(collection, list):
             result = "%s :: ..." % str(type(collection))  # trim the tree
         else:
@@ -951,6 +984,8 @@ base64Decode = base64_decode
 urlEncode = url_encode
 urlDecode = url_decode
 replaceFileExtension = replace_file_extension
+appendBeforeFileExtension = append_before_file_extension
+appendToBasename = append_to_basename
 
 # DEPRECATED
 insert_in_file = insertInFile
@@ -977,7 +1012,9 @@ flattenJson = flatten_json
 splitEvenlyInIncreasingOrder = split_evenly_in_increasing_order
 
 ## Sorting
-values_for_true = valuesForTrue
+assignToDict = assign_to_dict
+filterWithIndex = filter_with_index
+values_for_true = valuesForTrue  # DEPRECATED
 apply_permutation = applyPermutation
 get_permutation = getPermutation
 sort_based_on = sortBasedOn

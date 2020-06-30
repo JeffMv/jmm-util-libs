@@ -20,7 +20,7 @@ URL = 'https://github.com/JeffMv/jmm-util-libs'
 EMAIL = 'jeffrey.mvutu@gmail.com'
 AUTHOR = 'Jeffrey Mvutu Mabilama'
 REQUIRES_PYTHON = '>=3.0.0'
-VERSION = "0.1.3.1.2"
+VERSION = "0.1.3.1.3"
 
 # What packages are required for this module to be executed?
 REQUIRED = [
@@ -31,7 +31,7 @@ REQUIRED = [
 EXTRAS = {
     # 'fancy feature': ['django'],
     'conversion': ['pandas'],
-    'selenium': ['selenium'],
+    'selenium': ['selenium', 'requests'],
     'parsing': ['bs4', 'lxml'],
 }
 

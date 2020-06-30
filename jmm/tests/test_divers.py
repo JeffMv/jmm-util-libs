@@ -466,6 +466,38 @@ def test_valuesForTrue():
     assert expected == list(script.valuesForTrue(arg, array))
 
 
+def test_assignToDict():
+    inputted = {}
+    expected = {"abc": 12}
+    # ensure NO mutation
+    assert script.assign_to_dict(inputted, "abc", 12, copy=True) == expected
+    assert inputted == {}
+    # ensure mutation
+    assert script.assign_to_dict(inputted, "abc", 12) == expected
+    assert inputted == expected
+    
+    inputted = {"foodafafa": "hello world"}
+    expected = {"foodafafa": "hello world", -99: "test"}
+    # ensure NO mutation
+    assert script.assign_to_dict(inputted, -99, "test", True) == expected
+    assert inputted == {"foodafafa": "hello world"}
+    # ensure mutation
+    assert script.assign_to_dict(inputted, -99, "test", False) == expected
+    assert inputted == expected
+
+
+def test_groupBy():
+    inputted = ["abc_def_hi","foo_12","099","abc_zoo", "abc_aaa"]
+    func = lambda x: x.split("_")[0]
+    expected = ["abc_def_hi", "abc_zoo", "abc_aaa", "foo_12", "099"]
+    assert script.group_by(inputted, func) == expected
+    
+    inputted = ["abc_def_hi","foo_12", 99,"abc_zoo", "abc_aaa"]
+    func = lambda x: str(x).split("_")[0]
+    expected = ["abc_def_hi", "abc_zoo", "abc_aaa", "foo_12", 99]
+    assert script.group_by(inputted, func) == expected
+
+
 def test_sortBasedOn():
     array = ["Salamander", ".1nd", 314, -134, [], 3993]
     inputted = [4, 5, 0, 10000, -999, -10]
