@@ -426,8 +426,15 @@ def test_flatten_dict():
         "49": {"hello": "world"}}
     result = script.flatten_dict(inputted, "__")
     assert expected == result
+    
+    ## test JSON
     result = script.flatten_json(json.dumps(inputted), "__")
-    assert json.dumps(expected) == result
+    assert json.loads(json.dumps(expected)) == json.loads(result)
+    assert (expected) == json.loads(result)
+    assert type(result) == type("a str")
+    # print(type(expected), type(result))
+    # assert False, "expected: %s, result: %s" % (type(expected), type(result))
+    # assert json.dumps(expected) == result  # fails comparison in Python 3.5. sort order of strings (=> in dict keys too) may vary
     
     ## Check that it behaves well for arrays
     # expected = {"a":{}, "b": {}}
