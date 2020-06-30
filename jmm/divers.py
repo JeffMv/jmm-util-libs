@@ -11,7 +11,7 @@ import random
 import base64
 import calendar
 
-from collections import OrderedDict
+# from collections import OrderedDict
 from functools import reduce
 from datetime import date, datetime
 from threading import Thread
@@ -636,13 +636,26 @@ def group_by(collection, func):
     :param function func:
     :return list: a list with values grouped by the function's key
     
-    >>> group_by(["abc_def_hi","foo_12","099","abc_zoo", "abc_aaa"], lambda x: x.split("_")[0])
-    ["abc_def_hi", "abc_zoo", "abc_aaa","foo_12","099"]
     """
-    keys_order_preserved = OrderedDict(reduce((lambda acc,val: assign_to_dict(acc, func(val), [])), collection, {}))
-    tmp = keys_order_preserved
-    _ = [tmp[func(value)].append(value) for value in collection]
-    return reduce((lambda acc, key: acc + tmp[key]), tmp.keys(), [])
+    groups = reduce((lambda acc,val: acc + [(func(val), [])]), collection, [])
+    from collections import OrderedDict
+    groups = OrderedDict(groups)
+    _ = [groups[func(value)].append(value) for value in collection]
+    return groups
+
+
+def group_collection_elements_in_list(collection, func):
+    """Brings together elements of a list that are similar.
+    Useful to group together similar values while preserving an input order.
+    Also useful to preserve apparition order of values (for instance in API).
+    :param collection collection:
+    :param function func:
+    :return list:
+    >>> group_collection_elements_in_list(["abc_def_hi","foo_12","099","abc_zoo", "abc_aaa"], lambda x: x.split("_")[0])
+    ["abc_def_hi", "abc_zoo", "abc_aaa","foo_12", "099"]
+    """
+    groups = group_by(collection, func)
+    return reduce((lambda acc, key: acc + groups[key]), groups.keys(), [])
 
 
 def sortBasedOn(base, *toSort, reverse=False):
@@ -1013,6 +1026,8 @@ splitEvenlyInIncreasingOrder = split_evenly_in_increasing_order
 
 ## Sorting
 assignToDict = assign_to_dict
+groupBy = group_by
+groupCollectionElementsInList = group_collection_elements_in_list
 filterWithIndex = filter_with_index
 values_for_true = valuesForTrue  # DEPRECATED
 apply_permutation = applyPermutation

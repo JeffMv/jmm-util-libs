@@ -132,6 +132,10 @@ def test_append_to_basename():
     assert expected == script.append_to_basename("path/..value", 'anything')
 
 
+def test_append_before_file_extension():
+    test_append_to_basename()
+
+
 @pytest.mark.skip(reason="YAGNI. And might be bothersome to test. What would be a *good* test and test design for this?")
 def test_insertInFile():
     ### TEST IS NOT DONE
@@ -489,13 +493,38 @@ def test_assignToDict():
 def test_groupBy():
     inputted = ["abc_def_hi","foo_12","099","abc_zoo", "abc_aaa"]
     func = lambda x: x.split("_")[0]
+    expected = {
+        '099': ['099'],
+        'abc': ['abc_def_hi', 'abc_zoo', 'abc_aaa'],
+        'foo': ['foo_12']
+    }
+    assert dict(script.group_by(inputted, func)) == expected
+    # as of python 3.6, OrderDict comparisons with other maps drops order. Might change in the future
+    assert (script.group_by(inputted, func)) == expected
+    
+    inputted = ["abc_def_hi","foo_12", 99,"abc_zoo", "abc_aaa"]
+    func = lambda x: str(x).split("_")[0]
+    expected = {
+        '99': [99],  # "99" because that's the key func returns
+        'abc': ['abc_def_hi', 'abc_zoo', 'abc_aaa'],
+        'foo': ['foo_12']
+    }
+    assert dict(script.group_by(inputted, func)) == expected
+    # as of python 3.6, OrderDict comparisons with other maps drops order. Might change in the future
+    assert (script.group_by(inputted, func)) == expected
+    
+
+def test_group_collection_elements_in_list():
+    inputted = ["abc_def_hi","foo_12","099","abc_zoo", "abc_aaa"]
+    func = lambda x: x.split("_")[0]
     expected = ["abc_def_hi", "abc_zoo", "abc_aaa", "foo_12", "099"]
-    assert script.group_by(inputted, func) == expected
+    assert script.group_collection_elements_in_list(inputted, func) == expected
     
     inputted = ["abc_def_hi","foo_12", 99,"abc_zoo", "abc_aaa"]
     func = lambda x: str(x).split("_")[0]
     expected = ["abc_def_hi", "abc_zoo", "abc_aaa", "foo_12", 99]
-    assert script.group_by(inputted, func) == expected
+    assert script.group_collection_elements_in_list(inputted, func) == expected
+
 
 
 def test_sortBasedOn():
