@@ -294,13 +294,22 @@ def test_frequency():
     # That order is now only deterministic/predictable due to implementation details.
     expected_keys_ordered_by_value_count = [-4, 0, 30, 15, 1]
     expected_values_ordered_by_value_count = [1, 2, 3, 4, 5]  # <- keys are sorted by these values
-    sorted_xis, sorted_nis = script.frequency(sample, probabilities=False, sort=True)
+    sorted_xis, sorted_nis = script.frequency(sample, probabilities=False, sort=True, reverse=False)
     assert sorted_xis == expected_keys_ordered_by_value_count
     assert sorted_nis == expected_values_ordered_by_value_count
     
+    ### testing with OPTION : REVERSE=True
+    expected_keys_ordered_by_value_count = [1,15,30,0,-4]
+    expected_values_ordered_by_value_count = [5,4,3,2,1]  # <- keys are sorted by these values
+    sorted_xis, sorted_nis = script.frequency(sample, probabilities=False, sort=True, reverse=True)
+    assert sorted_xis == expected_keys_ordered_by_value_count
+    assert sorted_nis == expected_values_ordered_by_value_count
+    
+    
+    expected_keys_ordered_by_value_count = [-4, 0, 30, 15, 1]
     expected_probabilities_ordered_by_value_count = [1/15, 2/15, 3/15, 4/15, 5/15]  # <- keys are sorted by these values
-    sorted_xis, sorted_pis = script.frequency(sample, probabilities=True, sort=True)
-    assert sorted_xis == expected_keys_ordered_by_value_count  
+    sorted_xis, sorted_pis = script.frequency(sample, probabilities=True, sort=True, reverse=False)
+    assert sorted_xis == expected_keys_ordered_by_value_count
     assert len(sorted_xis) == len(sorted_pis)
     for i, key in enumerate(sorted_xis):
         expected = expected_probabilities_ordered_by_value_count[i]
@@ -545,7 +554,12 @@ def test_sortBasedOn():
     inputted = [4, 5, 0, 10000, -999, -10]
     ordered_input = list(sorted(inputted))
     expected = [[], 3993, 314, "Salamander", ".1nd", -134]
-    assert [ordered_input, expected] == script.sortBasedOn(inputted, array)
+    assert [ordered_input, expected] == script.sortBasedOn(inputted, array, reverse=False)
+    
+    # testing option reverse
+    ordered_input = list(sorted(inputted, reverse=True))
+    expected = [-134,".1nd","Salamander", 314, 3993, []]
+    assert [ordered_input, expected] == script.sortBasedOn(inputted, array, reverse=True)
     
     array = ["Salamander", ".1nd", 314, -134, [], 3993]
     inputted = [4, 5, 0, 10000, -999, -10]

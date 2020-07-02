@@ -666,14 +666,12 @@ def sortBasedOn(base, *toSort, reverse=False):
     :param bool reverse: whether the base collection should be sorted in reverse order
     """
     base = list(base)
-    sortedBase = list(sorted(base))
+    sortedBase = list(sorted(base, reverse=reverse))
     perm = getPermutation(base, sortedBase)
     
     res = [sortedBase]
     for arr in toSort:
         tmp = applyPermutation(arr, perm)
-        if reverse:
-            tmp = list(reversed(tmp))
         res.append(tmp)
     
     return res
