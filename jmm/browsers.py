@@ -24,6 +24,7 @@ from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support import expected_conditions as ExpectedConditions
 from selenium.common.exceptions import WebDriverException
+from selenium.webdriver.common.keys import Keys
 
 ## doc at: https://pyautogui.readthedocs.io/en/latest/
 # import pyautogui
@@ -150,6 +151,8 @@ class SeleniumHelper(object):
             return infos
         pass
 
+    # (int) default time to wait for the page to load. None means no wait.
+    wait_after_load = None
 
     def __init__(self, browser=None, browser_name=None, another=None, previous_session=None):
         """
@@ -195,15 +198,36 @@ class SeleniumHelper(object):
     
     ### ---------------------- ###
     
-    def get(self, url):
+    def current_tab(self):
+        current = self.driver.window_handles[-1]  # Current handle ?
+        return current
+    
+    def new_tab(self):
+        # source: https://stackoverflow.com/a/70457311/4418092
+        current = self.driver.window_handles[-1]  # Current handle ?
+        self.driver.switch_to.new_window()
+        other = self.driver.window_handles[-1]  # Get the handle of new tab
+        self.driver.switch_to.window(other)
+        self.driver.get(target_url) # Now the target url is opened in new tab
+        return other, current
+    
+    ### ---------------------- ###
+    
+    def get(self, url, wait_load=None):
         """Navigates to the given url, and returns self, allowing to chain
         calls.
         :return: self
         """
         self.driver.get(url)
+        wait = (wait_load and wait_load > 0)
+        if wait or self.wait_after_load:
+            duration = wait or self.wait_after_load
+            self.waitTime(ms=duration)
         return self
     
     def getAWait(self):
+        """Creates and returns a ui.WebDriverWait
+        """
         driver = self.driver
         wait = ui.WebDriverWait(driver, 1000)
         return wait
@@ -356,6 +380,14 @@ class SeleniumHelper(object):
     
     ### ---------------------- ###
     ###       Navigating       ###
+    
+    def scrollPageDown(self, times=1):
+        html = self.driver.find_element_by_tag_name('html')
+        _ = [html.send_keys(Keys.PAGE_DOWN) for _ in range(times)]
+    
+    def scrollPageUp(self, times=1):
+        html = self.driver.find_element_by_tag_name('html')
+        _ = [html.send_keys(Keys.PAGE_UP) for _ in range(times)]
     
     def scrollToHeight(self, height):
         self.driver.execute_script("window.scrollTo(0, %s)" % height)
