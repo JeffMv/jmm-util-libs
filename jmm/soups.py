@@ -33,7 +33,7 @@ def soupify(elmt, *args, encoding=None, **kwargs):
     soup = soupifyContent(elmt, *args, **kwargs)
     return soup
 
-def soupifyContent(content, clearWhitespaces=False):
+def soupifyContent(content, clearWhitespaces=False, parser='lxml'):
     """Creates a BeautifulSoup soup with the provided content
     :param content: the content to parse as a string
     :param clearWhitespaces: removes unnecessary whitespaces in the html
@@ -43,7 +43,7 @@ def soupifyContent(content, clearWhitespaces=False):
     """
     if clearWhitespaces:
         content = content.replace("  ","").replace("\n\n","").replace("\t","")
-    return BeautifulSoup(content, 'lxml')
+    return BeautifulSoup(content, parser)
 
 def soupifyRequestsResponse(resp, *args, **kwargs):
     if resp.encoding:
